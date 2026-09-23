@@ -1,1623 +1,1483 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta Ad Performance Dashboard</title>
 
-    <title>Meta Ad Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.3/papaparse.min.js"></script>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box}
 
-    <!-- Papa Parse -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.3/papaparse.min.js"></script>
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#eef6ff;
+    color:#172033;
+}
 
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+.container{
+    max-width:1450px;
+    margin:auto;
+    padding:20px;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background: #eef6ff;
-            color: #172033;
-        }
+.header{
+    background:white;
+    padding:25px;
+    border-radius:15px;
+    margin-bottom:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
 
-        .container {
-            max-width: 1450px;
-            margin: auto;
-            padding: 20px;
-        }
+.header h1{
+    margin:0;
+    color:#1877f2;
+    font-size:30px;
+}
 
-        /* HEADER */
-        .header {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        }
+.header p{
+    color:#667085;
+}
 
-        .header h1 {
-            margin: 0;
-            color: #1877f2;
-            font-size: 28px;
-        }
+.platform-buttons{
+    display:flex;
+    gap:10px;
+}
 
-        .header p {
-            color: #667085;
-            margin-bottom: 0;
-        }
+.platform{
+    border:0;
+    padding:11px 25px;
+    border-radius:8px;
+    cursor:pointer;
+    background:#f1f5f9;
+    font-weight:bold;
+}
 
-        /* PLATFORM */
-        .platform-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
+.platform.active{
+    background:#1877f2;
+    color:white;
+}
 
-        .platform-buttons button {
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            background: white;
-            color: #333;
-            font-weight: bold;
-        }
+.status{
+    background:white;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:15px;
+    color:#667085;
+}
 
-        .platform-buttons button.active {
-            background: #1877f2;
-            color: white;
-        }
+.filters{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-bottom:15px;
+}
 
-        /* FILTERS */
-        .filters {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
+.filter-box{
+    background:white;
+    padding:13px;
+    border-radius:10px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
 
-        .filter-box {
-            background: white;
-            padding: 12px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        }
+.filter-box label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    color:#667085;
+    margin-bottom:5px;
+}
 
-        .filter-box label {
-            display: block;
-            font-size: 12px;
-            color: #667085;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
+select{
+    width:100%;
+    padding:10px;
+    border:1px solid #d9e2ec;
+    border-radius:7px;
+}
 
-        .filter-box select {
-            width: 100%;
-            padding: 9px;
-            border: 1px solid #d9e2ec;
-            border-radius: 7px;
-        }
+.cards{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:10px;
+    margin-bottom:15px;
+}
 
-        /* KPI CARDS */
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+.card{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+}
 
-        .card {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-        }
+.card-value{
+    font-size:22px;
+    font-weight:bold;
+    color:#1877f2;
+}
 
-        .card-value {
-            font-size: 22px;
-            font-weight: bold;
-            color: #1877f2;
-        }
+.card-title{
+    margin-top:5px;
+    font-size:12px;
+    color:#667085;
+}
 
-        .card-title {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #667085;
-        }
+.chart-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
 
-        /* CHART GRID */
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+.chart-box{
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 4px 15px rgba(0,0,0,.06);
+    min-height:350px;
+}
 
-        .chart-box {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-            min-height: 350px;
-        }
+.chart-box h3{
+    margin-top:0;
+    font-size:15px;
+}
 
-        .chart-box h3 {
-            margin-top: 0;
-            font-size: 15px;
-        }
+.full{
+    grid-column:1/-1;
+}
 
-        .full {
-            grid-column: 1 / -1;
-        }
+.table-container{
+    overflow-x:auto;
+}
 
-        /* TABLE */
-        .table-container {
-            overflow-x: auto;
-        }
+table{
+    width:100%;
+    border-collapse:collapse;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+th,td{
+    padding:10px;
+    border-bottom:1px solid #eee;
+    font-size:12px;
+    text-align:right;
+}
 
-        th,
-        td {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            text-align: right;
-            font-size: 12px;
-        }
+th:first-child,
+td:first-child{
+    text-align:left;
+}
 
-        th:first-child,
-        td:first-child {
-            text-align: left;
-        }
+th{
+    background:#f5f8fc;
+    color:#667085;
+}
 
-        th {
-            background: #f5f8fc;
-            color: #667085;
-        }
+@media(max-width:1000px){
 
-        .status {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            color: #667085;
-            font-size: 13px;
-        }
+    .cards{
+        grid-template-columns:repeat(3,1fr);
+    }
 
-        /* MOBILE */
-        @media(max-width: 1000px) {
+    .filters{
+        grid-template-columns:repeat(2,1fr);
+    }
 
-            .cards {
-                grid-template-columns: repeat(3, 1fr);
-            }
+    .chart-grid{
+        grid-template-columns:1fr;
+    }
+}
 
-            .filters {
-                grid-template-columns: repeat(2, 1fr);
-            }
+@media(max-width:600px){
 
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    .cards{
+        grid-template-columns:repeat(2,1fr);
+    }
 
-        @media(max-width: 600px) {
-
-            .cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .filters {
-                grid-template-columns: 1fr;
-            }
-
-            .header h1 {
-                font-size: 22px;
-            }
-        }
-    </style>
+    .filters{
+        grid-template-columns:1fr;
+    }
+}
+</style>
 </head>
 
 <body>
 
 <div class="container">
 
-    <!-- HEADER -->
-    <div class="header">
-        <h1>Meta Ad Performance Dashboard</h1>
-        <p>
-            Interactive dashboard for analyzing Meta advertising campaigns,
-            engagement, impressions, clicks and conversions.
-        </p>
+<div class="header">
 
-        <div class="platform-buttons">
-            <button class="platform active" data-platform="Facebook">
-                Facebook
-            </button>
+<h1>Meta Ad Performance Dashboard</h1>
 
-            <button class="platform" data-platform="Instagram">
-                Instagram
-            </button>
-        </div>
-    </div>
+<p>
+Interactive dashboard for analyzing Meta advertising campaigns,
+engagement, impressions, clicks and conversions.
+</p>
 
+<div class="platform-buttons">
 
-    <!-- STATUS -->
-    <div class="status" id="status">
-        Loading dashboard data...
-    </div>
+<button class="platform active" data-platform="Facebook">
+Facebook
+</button>
+
+<button class="platform" data-platform="Instagram">
+Instagram
+</button>
+
+</div>
+
+</div>
 
 
-    <!-- FILTERS -->
-    <div class="filters">
-
-        <div class="filter-box">
-            <label>Campaign</label>
-
-            <select id="campaignFilter">
-                <option value="">All Campaigns</option>
-            </select>
-        </div>
+<div class="status" id="status">
+Loading data...
+</div>
 
 
-        <div class="filter-box">
-            <label>Target Interest</label>
+<div class="filters">
 
-            <select id="interestFilter">
-                <option value="">All Interests</option>
-            </select>
-        </div>
+<div class="filter-box">
 
+<label>Campaign</label>
 
-        <div class="filter-box">
-            <label>Month</label>
+<select id="campaignFilter">
+<option value="">All Campaigns</option>
+</select>
 
-            <select id="monthFilter">
-                <option value="">All Months</option>
-            </select>
-        </div>
+</div>
 
 
-        <div class="filter-box">
-            <label>Measure</label>
+<div class="filter-box">
 
-            <select id="measureFilter">
+<label>Target Interest</label>
 
-                <option value="Engagements">
-                    Engagements
-                </option>
+<select id="interestFilter">
+<option value="">All Interests</option>
+</select>
 
-                <option value="Clicks">
-                    Clicks
-                </option>
-
-                <option value="Shares">
-                    Shares
-                </option>
-
-                <option value="Comments">
-                    Comments
-                </option>
-
-                <option value="Purchases">
-                    Purchases
-                </option>
-
-                <option value="Impressions">
-                    Impressions
-                </option>
-
-            </select>
-        </div>
-
-    </div>
+</div>
 
 
-    <!-- KPI CARDS -->
-    <div class="cards">
+<div class="filter-box">
 
-        <div class="card">
-            <div class="card-value" id="clicks">0</div>
-            <div class="card-title">Clicks</div>
-        </div>
+<label>Month</label>
 
-        <div class="card">
-            <div class="card-value" id="shares">0</div>
-            <div class="card-title">Shares</div>
-        </div>
+<select id="monthFilter">
+<option value="">All Months</option>
+</select>
 
-        <div class="card">
-            <div class="card-value" id="comments">0</div>
-            <div class="card-title">Comments</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="purchases">0</div>
-            <div class="card-title">Purchases</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="engagements">0</div>
-            <div class="card-title">Engagements</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="impressions">0</div>
-            <div class="card-title">Impressions</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="engagementRate">0%</div>
-            <div class="card-title">Engagement Rate</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="conversionRate">0%</div>
-            <div class="card-title">Conversion Rate</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="purchaseRate">0%</div>
-            <div class="card-title">Purchase Rate</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="totalBudget">₹0</div>
-            <div class="card-title">Total Budget</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="avgBudget">₹0</div>
-            <div class="card-title">Avg Budget/Campaign</div>
-        </div>
-
-        <div class="card">
-            <div class="card-value" id="ctr">0%</div>
-            <div class="card-title">CTR</div>
-        </div>
-
-    </div>
+</div>
 
 
-    <!-- CHARTS -->
-    <div class="chart-grid">
+<div class="filter-box">
 
-        <div class="chart-box">
-            <h3>Engagements by Age</h3>
-            <canvas id="ageChart"></canvas>
-        </div>
+<label>Measure</label>
+
+<select id="measureFilter">
+
+<option value="Engagements">
+Engagements
+</option>
+
+<option value="Clicks">
+Clicks
+</option>
+
+<option value="Shares">
+Shares
+</option>
+
+<option value="Comments">
+Comments
+</option>
+
+<option value="Purchases">
+Purchases
+</option>
+
+<option value="Impressions">
+Impressions
+</option>
+
+</select>
+
+</div>
+
+</div>
 
 
-        <div class="chart-box">
-            <h3>Engagement by Target Gender</h3>
-            <canvas id="genderChart"></canvas>
-        </div>
+<div class="cards">
+
+<div class="card">
+<div class="card-value" id="clicks">0</div>
+<div class="card-title">Clicks</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="shares">0</div>
+<div class="card-title">Shares</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="comments">0</div>
+<div class="card-title">Comments</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="purchases">0</div>
+<div class="card-title">Purchases</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="engagements">0</div>
+<div class="card-title">Engagements</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="impressions">0</div>
+<div class="card-title">Impressions</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="engagementRate">0%</div>
+<div class="card-title">Engagement Rate</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="conversionRate">0%</div>
+<div class="card-title">Conversion Rate</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="purchaseRate">0%</div>
+<div class="card-title">Purchase Rate</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="totalBudget">₹0</div>
+<div class="card-title">Total Budget</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="avgBudget">₹0</div>
+<div class="card-title">Avg Budget/Campaign</div>
+</div>
+
+<div class="card">
+<div class="card-value" id="ctr">0%</div>
+<div class="card-title">CTR</div>
+</div>
+
+</div>
 
 
-        <div class="chart-box">
-            <h3>Weekly Engagement by Ad Type</h3>
-            <canvas id="weeklyChart"></canvas>
-        </div>
+<div class="chart-grid">
 
+<div class="chart-box">
+<h3>Engagements by Age</h3>
+<canvas id="ageChart"></canvas>
+</div>
 
-        <div class="chart-box">
-            <h3>Engagement by Country</h3>
-            <canvas id="countryChart"></canvas>
-        </div>
+<div class="chart-box">
+<h3>Engagement by Target Gender</h3>
+<canvas id="genderChart"></canvas>
+</div>
 
+<div class="chart-box">
+<h3>Weekly Engagement by Ad Type</h3>
+<canvas id="weeklyChart"></canvas>
+</div>
 
-        <!-- TABLE -->
-        <div class="chart-box full">
+<div class="chart-box">
+<h3>Engagement by Country</h3>
+<canvas id="countryChart"></canvas>
+</div>
 
-            <h3>Ad Type Performance</h3>
+<div class="chart-box full">
 
-            <div class="table-container">
+<h3>Ad Type Performance</h3>
 
-                <table>
+<div class="table-container">
 
-                    <thead>
-                        <tr>
-                            <th>Ad Type</th>
-                            <th>Impressions</th>
-                            <th>Clicks</th>
-                            <th>CTR</th>
-                            <th>Purchase Rate</th>
-                            <th>Engagement Rate</th>
-                            <th>Conversion Rate</th>
-                        </tr>
-                    </thead>
+<table>
 
-                    <tbody id="performanceTable"></tbody>
+<thead>
 
-                </table>
+<tr>
+<th>Ad Type</th>
+<th>Impressions</th>
+<th>Clicks</th>
+<th>CTR</th>
+<th>Purchase Rate</th>
+<th>Engagement Rate</th>
+<th>Conversion Rate</th>
+</tr>
 
-            </div>
+</thead>
 
-        </div>
+<tbody id="performanceTable"></tbody>
 
-    </div>
+</table>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
 
 <script>
 
-    /* =========================================
-       DATA
-    ========================================= */
+let users=[];
+let campaigns=[];
+let ads=[];
+let events=[];
 
-    let users = [];
-    let campaigns = [];
-    let ads = [];
-    let events = [];
+let selectedPlatform="Facebook";
 
-    let selectedPlatform = "Facebook";
+let charts={};
 
-    let charts = {};
 
+/* =========================
+CSV LOADER
+========================= */
 
-    /* =========================================
-       CSV LOADER
-    ========================================= */
+function loadCSV(file){
 
-    function loadCSV(file) {
+return new Promise((resolve,reject)=>{
 
-        return new Promise((resolve, reject) => {
+Papa.parse(file,{
 
-            Papa.parse(file, {
+download:true,
 
-                download: true,
+header:true,
 
-                header: true,
+skipEmptyLines:true,
 
-                skipEmptyLines: true,
+complete:result=>{
+resolve(result.data);
+},
 
-                complete: function(results) {
+error:error=>{
+reject(error);
+}
 
-                    resolve(results.data);
+});
 
-                },
+});
 
-                error: function(error) {
+}
 
-                    reject(error);
 
-                }
+/* =========================
+FORMAT
+========================= */
 
-            });
+function numberFormat(value){
 
-        });
+return new Intl.NumberFormat("en-IN",{
+maximumFractionDigits:0
+}).format(value||0);
 
-    }
+}
 
+function percentage(value){
 
-    /* =========================================
-       FORMAT
-    ========================================= */
+return ((value||0)*100).toFixed(2)+"%";
 
-    function numberFormat(value) {
+}
 
-        return new Intl.NumberFormat("en-IN", {
-            maximumFractionDigits: 0
-        }).format(value || 0);
 
-    }
+/* =========================
+LOAD DATA
+========================= */
 
+async function loadData(){
 
-    function percentage(value) {
+try{
 
-        return ((value || 0) * 100).toFixed(2) + "%";
+/*
+IMPORTANT:
+Folder name is EXACTLY "Raw Data"
+*/
 
-    }
+users=await loadCSV("Raw Data/users.csv");
 
+campaigns=await loadCSV("Raw Data/campaigns.csv");
 
-    /* =========================================
-       LOAD DATA
-    ========================================= */
+ads=await loadCSV("Raw Data/ads.csv");
 
-    async function loadData() {
+events=await loadCSV("Raw Data/ad_events.csv");
 
-        try {
 
-            /*
-             IMPORTANT:
-             Your folder name is "raw data"
-            */
+document.getElementById("status").innerText=
+"Data loaded successfully • "+
+numberFormat(events.length)+
+" event records";
 
-            users = await loadCSV("raw data/users.csv");
 
-            campaigns = await loadCSV("raw data/campaigns.csv");
+populateFilters();
 
-            ads = await loadCSV("raw data/ads.csv");
+updateDashboard();
 
-            events = await loadCSV("raw data/ad_events.csv");
+}
 
+catch(error){
 
-            document.getElementById("status").innerText =
-                "Data loaded successfully • " +
-                events.length.toLocaleString() +
-                " event records";
+console.error(error);
 
+document.getElementById("status").innerText=
+"ERROR: CSV files could not be loaded. Check Raw Data folder.";
 
-            populateFilters();
+}
 
-            updateDashboard();
+}
 
-        }
 
-        catch(error) {
+/* =========================
+LOOKUPS
+========================= */
 
-            console.error(error);
+function createLookups(){
 
-            document.getElementById("status").innerText =
-                "Error loading data. Please check the 'raw data' folder and CSV filenames.";
+const userMap=new Map();
 
-        }
+users.forEach(user=>{
+userMap.set(user.user_id,user);
+});
 
-    }
 
+const adMap=new Map();
 
-    /* =========================================
-       CREATE LOOKUPS
-    ========================================= */
+ads.forEach(ad=>{
+adMap.set(ad.ad_id,ad);
+});
 
-    function createLookups() {
 
-        const userMap = new Map();
+const campaignMap=new Map();
 
-        users.forEach(user => {
+campaigns.forEach(campaign=>{
+campaignMap.set(
+campaign.campaign_id,
+campaign
+);
+});
 
-            userMap.set(
-                user.user_id,
-                user
-            );
 
-        });
+return{
+userMap,
+adMap,
+campaignMap
+};
 
+}
 
-        const adMap = new Map();
 
-        ads.forEach(ad => {
+/* =========================
+FILTER DATA
+========================= */
 
-            adMap.set(
-                ad.ad_id,
-                ad
-            );
+function getFilteredData(){
 
-        });
+const{
+userMap,
+adMap,
+campaignMap
+}=createLookups();
 
 
-        const campaignMap = new Map();
+const campaignValue=
+document.getElementById(
+"campaignFilter"
+).value;
 
-        campaigns.forEach(campaign => {
 
-            campaignMap.set(
-                campaign.campaign_id,
-                campaign
-            );
+const interestValue=
+document.getElementById(
+"interestFilter"
+).value;
 
-        });
 
+const monthValue=
+document.getElementById(
+"monthFilter"
+).value;
 
-        return {
-            userMap,
-            adMap,
-            campaignMap
-        };
 
-    }
+return events
 
+.map(event=>{
 
-    /* =========================================
-       FILTER EVENTS
-    ========================================= */
+const ad=adMap.get(event.ad_id);
 
-    function getFilteredData() {
+if(!ad)return null;
 
-        const {
-            userMap,
-            adMap,
-            campaignMap
-        } = createLookups();
 
+const user=userMap.get(event.user_id);
 
-        const campaignValue =
-            document.getElementById("campaignFilter").value;
+const campaign=
+campaignMap.get(ad.campaign_id);
 
-        const interestValue =
-            document.getElementById("interestFilter").value;
 
-        const monthValue =
-            document.getElementById("monthFilter").value;
+return{
 
+...event,
+...ad,
+...user,
 
-        return events
-            .map(event => {
+campaign_name:
+campaign?
+campaign.name:
+"Unknown"
 
-                const ad =
-                    adMap.get(event.ad_id);
+};
 
-                if (!ad) return null;
+})
 
+.filter(row=>row!==null)
 
-                const user =
-                    userMap.get(event.user_id);
+.filter(row=>
+row.ad_platform===selectedPlatform
+)
 
+.filter(row=>
+!campaignValue ||
+row.campaign_name===campaignValue
+)
 
-                const campaign =
-                    campaignMap.get(ad.campaign_id);
+.filter(row=>
+!interestValue ||
+row.target_interests===interestValue
+)
 
+.filter(row=>
+!monthValue ||
+(
+row.timestamp &&
+row.timestamp.startsWith(monthValue)
+)
+);
 
-                return {
+}
 
-                    ...event,
 
-                    ...ad,
+/* =========================
+FILTER OPTIONS
+========================= */
 
-                    ...user,
+function populateFilters(){
 
-                    campaign_name:
-                        campaign
-                        ? campaign.name
-                        : "Unknown"
+const{
+adMap,
+campaignMap
+}=createLookups();
 
-                };
 
-            })
+const platformAds=
+ads.filter(
+ad=>ad.ad_platform===selectedPlatform
+);
 
-            .filter(row => row !== null)
 
-            .filter(row => {
+const campaignNames=new Set();
 
-                return row.ad_platform === selectedPlatform;
+const interests=new Set();
 
-            })
+const months=new Set();
 
-            .filter(row => {
 
-                if (!campaignValue)
-                    return true;
+platformAds.forEach(ad=>{
 
-                return row.campaign_name === campaignValue;
+const campaign=
+campaignMap.get(ad.campaign_id);
 
-            })
+if(campaign){
+campaignNames.add(campaign.name);
+}
 
-            .filter(row => {
+if(ad.target_interests){
+interests.add(ad.target_interests);
+}
 
-                if (!interestValue)
-                    return true;
+});
 
-                return row.target_interests === interestValue;
 
-            })
+events.forEach(event=>{
 
-            .filter(row => {
+const ad=adMap.get(event.ad_id);
 
-                if (!monthValue)
-                    return true;
+if(!ad)return;
 
-                return row.timestamp &&
-                    row.timestamp.startsWith(monthValue);
+if(
+ad.ad_platform!==selectedPlatform
+)return;
 
-            });
+if(event.timestamp){
 
-    }
+months.add(
+event.timestamp.substring(0,7)
+);
 
+}
 
-    /* =========================================
-       FILTER OPTIONS
-    ========================================= */
+});
 
-    function populateFilters() {
 
-        const {
-            adMap,
-            campaignMap
-        } = createLookups();
+const campaignSelect=
+document.getElementById(
+"campaignFilter"
+);
 
+const interestSelect=
+document.getElementById(
+"interestFilter"
+);
 
-        const platformAds =
-            ads.filter(ad =>
-                ad.ad_platform === selectedPlatform
-            );
+const monthSelect=
+document.getElementById(
+"monthFilter"
+);
 
 
-        const campaignNames = new Set();
+campaignSelect.innerHTML=
+'<option value="">All Campaigns</option>';
 
-        const interests = new Set();
+interestSelect.innerHTML=
+'<option value="">All Interests</option>';
 
-        const months = new Set();
+monthSelect.innerHTML=
+'<option value="">All Months</option>';
 
 
-        platformAds.forEach(ad => {
+[...campaignNames]
+.sort()
+.forEach(name=>{
 
-            const campaign =
-                campaignMap.get(ad.campaign_id);
+campaignSelect.innerHTML+=
+`<option value="${name}">
+${name}
+</option>`;
 
-            if (campaign) {
+});
 
-                campaignNames.add(
-                    campaign.name
-                );
 
-            }
+[...interests]
+.sort()
+.forEach(interest=>{
 
+interestSelect.innerHTML+=
+`<option value="${interest}">
+${interest}
+</option>`;
 
-            if (ad.target_interests) {
+});
 
-                interests.add(
-                    ad.target_interests
-                );
 
-            }
+[...months]
+.sort()
+.forEach(month=>{
 
-        });
+monthSelect.innerHTML+=
+`<option value="${month}">
+${month}
+</option>`;
 
+});
 
-        events.forEach(event => {
+}
 
-            const ad =
-                adMap.get(event.ad_id);
 
-            if (!ad) return;
+/* =========================
+METRICS
+========================= */
 
+function calculateMetrics(rows){
 
-            if (ad.ad_platform !== selectedPlatform)
-                return;
+let impressions=0;
+let clicks=0;
+let shares=0;
+let comments=0;
+let purchases=0;
+let engagements=0;
 
 
-            if (event.timestamp) {
+rows.forEach(row=>{
 
-                months.add(
-                    event.timestamp.substring(0, 7)
-                );
+const type=row.event_type;
 
-            }
 
-        });
+if(type==="Impression")
+impressions++;
 
 
-        const campaignSelect =
-            document.getElementById("campaignFilter");
+if(type==="Click")
+clicks++;
 
-        const interestSelect =
-            document.getElementById("interestFilter");
 
-        const monthSelect =
-            document.getElementById("monthFilter");
+if(type==="Share")
+shares++;
 
 
-        campaignSelect.innerHTML =
-            '<option value="">All Campaigns</option>';
+if(type==="Comment")
+comments++;
 
 
-        interestSelect.innerHTML =
-            '<option value="">All Interests</option>';
+if(type==="Purchase")
+purchases++;
 
 
-        monthSelect.innerHTML =
-            '<option value="">All Months</option>';
+if(
+type==="Click"||
+type==="Like"||
+type==="Comment"||
+type==="Share"
+){
 
+engagements++;
 
-        [...campaignNames]
-            .sort()
-            .forEach(name => {
+}
 
-                campaignSelect.innerHTML +=
-                    `<option value="${name}">
-                        ${name}
-                    </option>`;
+});
 
-            });
 
+const ctr=
+impressions?
+clicks/impressions:
+0;
 
-        [...interests]
-            .sort()
-            .forEach(interest => {
 
-                interestSelect.innerHTML +=
-                    `<option value="${interest}">
-                        ${interest}
-                    </option>`;
+const engagementRate=
+impressions?
+engagements/impressions:
+0;
 
-            });
 
+const purchaseRate=
+impressions?
+purchases/impressions:
+0;
 
-        [...months]
-            .sort()
-            .forEach(month => {
 
-                monthSelect.innerHTML +=
-                    `<option value="${month}">
-                        ${month}
-                    </option>`;
+const conversionRate=
+clicks?
+purchases/clicks:
+0;
 
-            });
 
-    }
+const budgets=new Map();
 
 
-    /* =========================================
-       METRICS
-    ========================================= */
+rows.forEach(row=>{
 
-    function calculateMetrics(rows) {
+if(
+row.campaign_id &&
+row.total_budget
+){
 
-        let impressions = 0;
-        let clicks = 0;
-        let shares = 0;
-        let comments = 0;
-        let purchases = 0;
-        let engagements = 0;
+budgets.set(
+row.campaign_id,
+Number(row.total_budget)
+);
 
+}
 
-        rows.forEach(row => {
+});
 
-            const type =
-                row.event_type;
 
+let totalBudget=0;
 
-            if (type === "Impression")
-                impressions++;
+budgets.forEach(value=>{
+totalBudget+=value;
+});
 
 
-            if (type === "Click")
-                clicks++;
+const avgBudget=
+budgets.size?
+totalBudget/budgets.size:
+0;
 
 
-            if (type === "Share")
-                shares++;
+return{
+impressions,
+clicks,
+shares,
+comments,
+purchases,
+engagements,
+ctr,
+engagementRate,
+purchaseRate,
+conversionRate,
+totalBudget,
+avgBudget
+};
 
+}
 
-            if (type === "Comment")
-                comments++;
 
+/* =========================
+UPDATE CARDS
+========================= */
 
-            if (type === "Purchase")
-                purchases++;
+function updateKPIs(m){
 
+document.getElementById("clicks").innerText=
+numberFormat(m.clicks);
 
-            if (
-                type === "Click" ||
-                type === "Like" ||
-                type === "Comment" ||
-                type === "Share"
-            ) {
+document.getElementById("shares").innerText=
+numberFormat(m.shares);
 
-                engagements++;
+document.getElementById("comments").innerText=
+numberFormat(m.comments);
 
-            }
+document.getElementById("purchases").innerText=
+numberFormat(m.purchases);
 
-        });
+document.getElementById("engagements").innerText=
+numberFormat(m.engagements);
 
+document.getElementById("impressions").innerText=
+numberFormat(m.impressions);
 
-        const ctr =
-            impressions
-                ? clicks / impressions
-                : 0;
+document.getElementById("engagementRate").innerText=
+percentage(m.engagementRate);
 
+document.getElementById("conversionRate").innerText=
+percentage(m.conversionRate);
 
-        const engagementRate =
-            impressions
-                ? engagements / impressions
-                : 0;
+document.getElementById("purchaseRate").innerText=
+percentage(m.purchaseRate);
 
+document.getElementById("totalBudget").innerText=
+"₹"+numberFormat(m.totalBudget);
 
-        const purchaseRate =
-            impressions
-                ? purchases / impressions
-                : 0;
+document.getElementById("avgBudget").innerText=
+"₹"+numberFormat(m.avgBudget);
 
+document.getElementById("ctr").innerText=
+percentage(m.ctr);
 
-        const conversionRate =
-            clicks
-                ? purchases / clicks
-                : 0;
+}
 
 
-        /*
-           Budget
-        */
+/* =========================
+GROUP DATA
+========================= */
 
-        const budgets = new Map();
+function groupData(rows,field){
 
+const result={};
 
-        rows.forEach(row => {
+rows.forEach(row=>{
 
-            if (
-                row.campaign_id &&
-                row.total_budget
-            ) {
+const key=row[field]||"Unknown";
 
-                budgets.set(
-                    row.campaign_id,
-                    Number(row.total_budget)
-                );
+if(!result[key])
+result[key]=0;
 
-            }
 
-        });
+if(
+row.event_type==="Click"||
+row.event_type==="Like"||
+row.event_type==="Comment"||
+row.event_type==="Share"
+){
 
+result[key]++;
 
-        let totalBudget = 0;
+}
 
+});
 
-        budgets.forEach(value => {
+return result;
 
-            totalBudget += value;
+}
 
-        });
 
+/* =========================
+AGE CHART
+========================= */
 
-        const avgBudget =
-            budgets.size
-                ? totalBudget / budgets.size
-                : 0;
+function createAgeChart(rows){
 
+if(charts.age)
+charts.age.destroy();
 
-        return {
 
-            impressions,
-            clicks,
-            shares,
-            comments,
-            purchases,
-            engagements,
-            ctr,
-            engagementRate,
-            purchaseRate,
-            conversionRate,
-            totalBudget,
-            avgBudget
+const data=
+groupData(rows,"user_age");
 
-        };
 
-    }
+const labels=
+Object.keys(data)
+.sort(
+(a,b)=>Number(a)-Number(b)
+);
 
 
-    /* =========================================
-       KPI
-    ========================================= */
+charts.age=new Chart(
+document.getElementById("ageChart"),
+{
 
-    function updateKPIs(metrics) {
+type:"bar",
 
-        document.getElementById("clicks").innerText =
-            numberFormat(metrics.clicks);
+data:{
 
+labels:labels,
 
-        document.getElementById("shares").innerText =
-            numberFormat(metrics.shares);
+datasets:[{
 
+label:"Engagements",
 
-        document.getElementById("comments").innerText =
-            numberFormat(metrics.comments);
+data:labels.map(
+x=>data[x]
+)
 
+}]
 
-        document.getElementById("purchases").innerText =
-            numberFormat(metrics.purchases);
+},
 
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
 
-        document.getElementById("engagements").innerText =
-            numberFormat(metrics.engagements);
+});
 
+}
 
-        document.getElementById("impressions").innerText =
-            numberFormat(metrics.impressions);
 
+/* =========================
+GENDER
+========================= */
 
-        document.getElementById("engagementRate").innerText =
-            percentage(metrics.engagementRate);
+function createGenderChart(rows){
 
+if(charts.gender)
+charts.gender.destroy();
 
-        document.getElementById("conversionRate").innerText =
-            percentage(metrics.conversionRate);
 
+const data=
+groupData(
+rows,
+"target_gender"
+);
 
-        document.getElementById("purchaseRate").innerText =
-            percentage(metrics.purchaseRate);
 
+charts.gender=new Chart(
+document.getElementById("genderChart"),
+{
 
-        document.getElementById("totalBudget").innerText =
-            "₹" + numberFormat(metrics.totalBudget);
+type:"doughnut",
 
+data:{
 
-        document.getElementById("avgBudget").innerText =
-            "₹" + numberFormat(metrics.avgBudget);
+labels:Object.keys(data),
 
+datasets:[{
 
-        document.getElementById("ctr").innerText =
-            percentage(metrics.ctr);
+data:Object.values(data)
 
-    }
+}]
 
+},
 
-    /* =========================================
-       GROUP DATA
-    ========================================= */
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
 
-    function groupData(rows, field) {
+});
 
-        const result = {};
+}
 
 
-        rows.forEach(row => {
+/* =========================
+COUNTRY
+========================= */
 
-            const key =
-                row[field] || "Unknown";
+function createCountryChart(rows){
 
+if(charts.country)
+charts.country.destroy();
 
-            if (!result[key])
-                result[key] = 0;
 
+const data=
+groupData(
+rows,
+"country"
+);
 
-            if (
-                row.event_type === "Click" ||
-                row.event_type === "Like" ||
-                row.event_type === "Comment" ||
-                row.event_type === "Share"
-            ) {
 
-                result[key]++;
+const sorted=
+Object.entries(data)
+.sort((a,b)=>b[1]-a[1])
+.slice(0,10);
 
-            }
 
-        });
+charts.country=new Chart(
+document.getElementById("countryChart"),
+{
 
+type:"bar",
 
-        return result;
+data:{
 
-    }
+labels:
+sorted.map(x=>x[0]),
 
+datasets:[{
 
-    /* =========================================
-       DESTROY CHART
-    ========================================= */
+label:"Engagements",
 
-    function destroyChart(name) {
+data:
+sorted.map(x=>x[1])
 
-        if (charts[name]) {
+}]
 
-            charts[name].destroy();
+},
 
-        }
+options:{
 
-    }
+indexAxis:"y",
 
+responsive:true,
 
-    /* =========================================
-       AGE CHART
-    ========================================= */
+maintainAspectRatio:false
 
-    function createAgeChart(rows) {
+}
 
-        destroyChart("age");
+});
 
+}
 
-        const data =
-            groupData(rows, "user_age");
 
+/* =========================
+WEEKLY
+========================= */
 
-        const labels =
-            Object.keys(data)
-                .sort((a,b) =>
-                    Number(a) - Number(b)
-                );
+function createWeeklyChart(rows){
 
+if(charts.weekly)
+charts.weekly.destroy();
 
-        charts.age =
-            new Chart(
-                document.getElementById("ageChart"),
-                {
 
-                    type: "bar",
+const weeks={};
 
-                    data: {
 
-                        labels,
+rows.forEach(row=>{
 
-                        datasets: [{
+if(!row.timestamp)
+return;
 
-                            label: "Engagements",
 
-                            data:
-                                labels.map(
-                                    x => data[x]
-                                )
+const date=
+new Date(row.timestamp);
 
-                        }]
 
-                    },
+const week=
+Math.ceil(
+(
+(
+date-
+new Date(
+date.getFullYear(),
+0,
+1
+)
+)/86400000
+)/7
+);
 
-                    options: {
 
-                        responsive: true,
+const key="Week "+week;
 
-                        maintainAspectRatio: false
 
-                    }
+if(!weeks[key])
+weeks[key]=0;
 
-                }
 
-            );
+if(
+row.event_type==="Click"||
+row.event_type==="Like"||
+row.event_type==="Comment"||
+row.event_type==="Share"
+){
 
-    }
+weeks[key]++;
 
+}
 
-    /* =========================================
-       GENDER CHART
-    ========================================= */
+});
 
-    function createGenderChart(rows) {
 
-        destroyChart("gender");
+const labels=
+Object.keys(weeks);
 
 
-        const data =
-            groupData(
-                rows,
-                "target_gender"
-            );
+charts.weekly=new Chart(
+document.getElementById("weeklyChart"),
+{
 
+type:"line",
 
-        charts.gender =
-            new Chart(
-                document.getElementById("genderChart"),
-                {
+data:{
 
-                    type: "doughnut",
+labels:labels,
 
-                    data: {
+datasets:[{
 
-                        labels:
-                            Object.keys(data),
+label:"Engagements",
 
-                        datasets: [{
+data:
+labels.map(
+x=>weeks[x]
+),
 
-                            data:
-                                Object.values(data)
+tension:.3
 
-                        }]
+}]
 
-                    },
+},
 
-                    options: {
+options:{
+responsive:true,
+maintainAspectRatio:false
+}
 
-                        responsive: true,
+});
 
-                        maintainAspectRatio: false
+}
 
-                    }
 
-                }
+/* =========================
+TABLE
+========================= */
 
-            );
+function createTable(rows){
 
-    }
+const groups={};
 
 
-    /* =========================================
-       COUNTRY CHART
-    ========================================= */
+rows.forEach(row=>{
 
-    function createCountryChart(rows) {
+const type=
+row.ad_type||"Unknown";
 
-        destroyChart("country");
 
+if(!groups[type]){
 
-        const data =
-            groupData(
-                rows,
-                "country"
-            );
+groups[type]={
+Impression:0,
+Click:0,
+Purchase:0,
+Like:0,
+Comment:0,
+Share:0
+};
 
+}
 
-        const sorted =
-            Object.entries(data)
-                .sort((a,b) => b[1] - a[1])
-                .slice(0,10);
 
+if(
+groups[type][row.event_type]
+!==undefined
+){
 
-        charts.country =
-            new Chart(
-                document.getElementById("countryChart"),
-                {
+groups[type][row.event_type]++;
 
-                    type: "bar",
+}
 
-                    data: {
+});
 
-                        labels:
-                            sorted.map(x => x[0]),
 
-                        datasets: [{
+const table=
+document.getElementById(
+"performanceTable"
+);
 
-                            label: "Engagements",
+table.innerHTML="";
 
-                            data:
-                                sorted.map(x => x[1])
 
-                        }]
+Object.entries(groups)
+.forEach(([type,data])=>{
 
-                    },
+const impressions=
+data.Impression;
 
-                    options: {
+const clicks=
+data.Click;
 
-                        indexAxis: "y",
+const purchases=
+data.Purchase;
 
-                        responsive: true,
+const engagements=
+data.Click+
+data.Like+
+data.Comment+
+data.Share;
 
-                        maintainAspectRatio: false
 
-                    }
+const ctr=
+impressions?
+clicks/impressions:
+0;
 
-                }
+const purchaseRate=
+impressions?
+purchases/impressions:
+0;
 
-            );
+const engagementRate=
+impressions?
+engagements/impressions:
+0;
 
-    }
+const conversionRate=
+clicks?
+purchases/clicks:
+0;
 
 
-    /* =========================================
-       WEEKLY CHART
-    ========================================= */
+table.innerHTML+=`
 
-    function createWeeklyChart(rows) {
+<tr>
 
-        destroyChart("weekly");
+<td>${type}</td>
 
+<td>${numberFormat(impressions)}</td>
 
-        const weeks = {};
+<td>${numberFormat(clicks)}</td>
 
+<td>${percentage(ctr)}</td>
 
-        rows.forEach(row => {
+<td>${percentage(purchaseRate)}</td>
 
-            if (!row.timestamp)
-                return;
+<td>${percentage(engagementRate)}</td>
 
+<td>${percentage(conversionRate)}</td>
 
-            const date =
-                new Date(row.timestamp);
+</tr>
 
+`;
 
-            const week =
-                Math.ceil(
-                    (
-                        (
-                            date -
-                            new Date(
-                                date.getFullYear(),
-                                0,
-                                1
-                            )
-                        ) / 86400000
-                    ) / 7
-                );
+});
 
+}
 
-            const key =
-                "Week " + week;
 
+/* =========================
+UPDATE DASHBOARD
+========================= */
 
-            if (!weeks[key])
-                weeks[key] = 0;
+function updateDashboard(){
 
+const rows=
+getFilteredData();
 
-            if (
-                row.event_type === "Click" ||
-                row.event_type === "Like" ||
-                row.event_type === "Comment" ||
-                row.event_type === "Share"
-            ) {
 
-                weeks[key]++;
+const metrics=
+calculateMetrics(rows);
 
-            }
 
-        });
+updateKPIs(metrics);
 
+createAgeChart(rows);
 
-        const labels =
-            Object.keys(weeks);
+createGenderChart(rows);
 
+createWeeklyChart(rows);
 
-        charts.weekly =
-            new Chart(
-                document.getElementById("weeklyChart"),
-                {
+createCountryChart(rows);
 
-                    type: "line",
+createTable(rows);
 
-                    data: {
 
-                        labels,
+document.getElementById("status").innerText=
+numberFormat(rows.length)+
+" event records • "+
+selectedPlatform;
 
-                        datasets: [{
+}
 
-                            label: "Engagements",
 
-                            data:
-                                labels.map(
-                                    x => weeks[x]
-                                ),
+/* =========================
+PLATFORM
+========================= */
 
-                            tension: 0.3
+document
+.querySelectorAll(".platform")
+.forEach(button=>{
 
-                        }]
+button.addEventListener(
+"click",
+function(){
 
-                    },
+document
+.querySelectorAll(".platform")
+.forEach(btn=>
+btn.classList.remove("active")
+);
 
-                    options: {
 
-                        responsive: true,
+this.classList.add("active");
 
-                        maintainAspectRatio: false
 
-                    }
+selectedPlatform=
+this.dataset.platform;
 
-                }
 
-            );
+populateFilters();
 
-    }
+updateDashboard();
 
+}
 
-    /* =========================================
-       PERFORMANCE TABLE
-    ========================================= */
+);
 
-    function createTable(rows) {
+});
 
-        const groups = {};
 
+/* =========================
+FILTER EVENTS
+========================= */
 
-        rows.forEach(row => {
+document
+.getElementById("campaignFilter")
+.addEventListener(
+"change",
+updateDashboard
+);
 
-            const type =
-                row.ad_type || "Unknown";
+document
+.getElementById("interestFilter")
+.addEventListener(
+"change",
+updateDashboard
+);
 
+document
+.getElementById("monthFilter")
+.addEventListener(
+"change",
+updateDashboard
+);
 
-            if (!groups[type]) {
+document
+.getElementById("measureFilter")
+.addEventListener(
+"change",
+updateDashboard
+);
 
-                groups[type] = {
 
-                    Impression: 0,
-                    Click: 0,
-                    Purchase: 0,
-                    Like: 0,
-                    Comment: 0,
-                    Share: 0
+/* =========================
+START
+========================= */
 
-                };
-
-            }
-
-
-            if (
-                groups[type][row.event_type]
-                !== undefined
-            ) {
-
-                groups[type][row.event_type]++;
-
-            }
-
-        });
-
-
-        const table =
-            document.getElementById(
-                "performanceTable"
-            );
-
-
-        table.innerHTML = "";
-
-
-        Object.entries(groups)
-            .forEach(([type, data]) => {
-
-
-                const impressions =
-                    data.Impression;
-
-
-                const clicks =
-                    data.Click;
-
-
-                const purchases =
-                    data.Purchase;
-
-
-                const engagements =
-                    data.Click +
-                    data.Like +
-                    data.Comment +
-                    data.Share;
-
-
-                const ctr =
-                    impressions
-                        ? clicks / impressions
-                        : 0;
-
-
-                const purchaseRate =
-                    impressions
-                        ? purchases / impressions
-                        : 0;
-
-
-                const engagementRate =
-                    impressions
-                        ? engagements / impressions
-                        : 0;
-
-
-                const conversionRate =
-                    clicks
-                        ? purchases / clicks
-                        : 0;
-
-
-                table.innerHTML += `
-
-                    <tr>
-
-                        <td>${type}</td>
-
-                        <td>
-                            ${numberFormat(impressions)}
-                        </td>
-
-                        <td>
-                            ${numberFormat(clicks)}
-                        </td>
-
-                        <td>
-                            ${percentage(ctr)}
-                        </td>
-
-                        <td>
-                            ${percentage(purchaseRate)}
-                        </td>
-
-                        <td>
-                            ${percentage(engagementRate)}
-                        </td>
-
-                        <td>
-                            ${percentage(conversionRate)}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            });
-
-    }
-
-
-    /* =========================================
-       UPDATE DASHBOARD
-    ========================================= */
-
-    function updateDashboard() {
-
-        const rows =
-            getFilteredData();
-
-
-        const metrics =
-            calculateMetrics(rows);
-
-
-        updateKPIs(metrics);
-
-
-        createAgeChart(rows);
-
-        createGenderChart(rows);
-
-        createWeeklyChart(rows);
-
-        createCountryChart(rows);
-
-        createTable(rows);
-
-
-        document.getElementById("status").innerText =
-            numberFormat(rows.length) +
-            " event records • " +
-            selectedPlatform;
-
-    }
-
-
-    /* =========================================
-       PLATFORM BUTTONS
-    ========================================= */
-
-    document
-        .querySelectorAll(".platform")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                function() {
-
-                    document
-                        .querySelectorAll(".platform")
-                        .forEach(btn =>
-                            btn.classList.remove("active")
-                        );
-
-
-                    this.classList.add("active");
-
-
-                    selectedPlatform =
-                        this.dataset.platform;
-
-
-                    populateFilters();
-
-
-                    updateDashboard();
-
-                }
-            );
-
-        });
-
-
-    /* =========================================
-       FILTER EVENTS
-    ========================================= */
-
-    document
-        .getElementById("campaignFilter")
-        .addEventListener(
-            "change",
-            updateDashboard
-        );
-
-
-    document
-        .getElementById("interestFilter")
-        .addEventListener(
-            "change",
-            updateDashboard
-        );
-
-
-    document
-        .getElementById("monthFilter")
-        .addEventListener(
-            "change",
-            updateDashboard
-        );
-
-
-    document
-        .getElementById("measureFilter")
-        .addEventListener(
-            "change",
-            updateDashboard
-        );
-
-
-    /* =========================================
-       START
-    ========================================= */
-
-    loadData();
+loadData();
 
 </script>
 
