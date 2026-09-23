@@ -1,227 +1,443 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Meta Ad Performance Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.3/papaparse.min.js"></script>
 
+
 <style>
-*{box-sizing:border-box}
+
+*{
+box-sizing:border-box;
+}
 
 body{
-    margin:0;
-    font-family:Arial,Helvetica,sans-serif;
-    background:#eef6ff;
-    color:#172033;
+
+margin:0;
+
+font-family:
+Arial,
+Helvetica,
+sans-serif;
+
+background:#eef5ff;
+
+color:#172033;
+
 }
 
 .container{
-    max-width:1450px;
-    margin:auto;
-    padding:20px;
+
+max-width:1500px;
+
+margin:auto;
+
+padding:20px;
+
 }
 
+
+/* HEADER */
+
 .header{
-    background:white;
-    padding:25px;
-    border-radius:15px;
-    margin-bottom:15px;
-    box-shadow:0 5px 20px rgba(0,0,0,.08);
+
+background:white;
+
+padding:25px;
+
+border-radius:15px;
+
+margin-bottom:15px;
+
+box-shadow:
+0 4px 20px rgba(0,0,0,.08);
+
 }
 
 .header h1{
-    margin:0;
-    color:#1877f2;
-    font-size:30px;
+
+margin:0;
+
+font-size:30px;
+
+color:#1877f2;
+
 }
 
 .header p{
-    color:#667085;
+
+color:#667085;
+
+margin-bottom:20px;
+
 }
 
+
+/* PLATFORM */
+
 .platform-buttons{
-    display:flex;
-    gap:10px;
+
+display:flex;
+
+gap:10px;
+
 }
 
 .platform{
-    border:0;
-    padding:11px 25px;
-    border-radius:8px;
-    cursor:pointer;
-    background:#f1f5f9;
-    font-weight:bold;
+
+border:none;
+
+padding:11px 25px;
+
+border-radius:8px;
+
+background:#edf2f7;
+
+font-weight:bold;
+
+cursor:pointer;
+
 }
 
 .platform.active{
-    background:#1877f2;
-    color:white;
+
+background:#1877f2;
+
+color:white;
+
 }
+
+
+/* STATUS */
 
 .status{
-    background:white;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:15px;
-    color:#667085;
+
+background:white;
+
+padding:13px;
+
+border-radius:10px;
+
+margin-bottom:15px;
+
+font-size:14px;
+
+color:#667085;
+
 }
 
+
+/* FILTERS */
+
 .filters{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:12px;
-    margin-bottom:15px;
+
+display:grid;
+
+grid-template-columns:
+repeat(4,1fr);
+
+gap:12px;
+
+margin-bottom:15px;
+
 }
 
 .filter-box{
-    background:white;
-    padding:13px;
-    border-radius:10px;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
+
+background:white;
+
+padding:14px;
+
+border-radius:10px;
+
+box-shadow:
+0 3px 12px rgba(0,0,0,.06);
+
 }
 
 .filter-box label{
-    display:block;
-    font-size:12px;
-    font-weight:bold;
-    color:#667085;
-    margin-bottom:5px;
+
+display:block;
+
+font-size:12px;
+
+font-weight:bold;
+
+color:#667085;
+
+margin-bottom:6px;
+
 }
 
 select{
-    width:100%;
-    padding:10px;
-    border:1px solid #d9e2ec;
-    border-radius:7px;
+
+width:100%;
+
+padding:10px;
+
+border:
+1px solid #d9e2ec;
+
+border-radius:7px;
+
+background:white;
+
 }
 
+
+/* KPI */
+
 .cards{
-    display:grid;
-    grid-template-columns:repeat(6,1fr);
-    gap:10px;
-    margin-bottom:15px;
+
+display:grid;
+
+grid-template-columns:
+repeat(6,1fr);
+
+gap:10px;
+
+margin-bottom:15px;
+
 }
 
 .card{
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
+
+background:white;
+
+padding:16px;
+
+border-radius:12px;
+
+box-shadow:
+0 3px 12px rgba(0,0,0,.06);
+
 }
 
 .card-value{
-    font-size:22px;
-    font-weight:bold;
-    color:#1877f2;
+
+font-size:23px;
+
+font-weight:bold;
+
+color:#1877f2;
+
 }
 
 .card-title{
-    margin-top:5px;
-    font-size:12px;
-    color:#667085;
+
+font-size:12px;
+
+color:#667085;
+
+margin-top:5px;
+
 }
 
+
+/* CHARTS */
+
 .chart-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
+
+display:grid;
+
+grid-template-columns:
+1fr 1fr;
+
+gap:15px;
+
 }
 
 .chart-box{
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 4px 15px rgba(0,0,0,.06);
-    min-height:350px;
+
+background:white;
+
+padding:18px;
+
+border-radius:12px;
+
+box-shadow:
+0 3px 12px rgba(0,0,0,.06);
+
+height:390px;
+
 }
 
 .chart-box h3{
-    margin-top:0;
-    font-size:15px;
+
+margin-top:0;
+
+font-size:16px;
+
+}
+
+.chart-box canvas{
+
+width:100%!important;
+
+height:320px!important;
+
 }
 
 .full{
-    grid-column:1/-1;
+
+grid-column:
+1 / -1;
+
+height:auto;
+
 }
 
+
+/* TABLE */
+
 .table-container{
-    overflow-x:auto;
+
+overflow-x:auto;
+
 }
 
 table{
-    width:100%;
-    border-collapse:collapse;
+
+width:100%;
+
+border-collapse:
+collapse;
+
 }
 
-th,td{
-    padding:10px;
-    border-bottom:1px solid #eee;
-    font-size:12px;
-    text-align:right;
+th,
+td{
+
+padding:11px;
+
+border-bottom:
+1px solid #eee;
+
+font-size:13px;
+
+text-align:right;
+
 }
 
 th:first-child,
 td:first-child{
-    text-align:left;
+
+text-align:left;
+
 }
 
 th{
-    background:#f5f8fc;
-    color:#667085;
+
+background:#f5f8fc;
+
+color:#667085;
+
 }
 
-@media(max-width:1000px){
 
-    .cards{
-        grid-template-columns:repeat(3,1fr);
-    }
+/* RESPONSIVE */
 
-    .filters{
-        grid-template-columns:repeat(2,1fr);
-    }
+@media(max-width:1100px){
 
-    .chart-grid{
-        grid-template-columns:1fr;
-    }
+.cards{
+
+grid-template-columns:
+repeat(3,1fr);
+
 }
 
-@media(max-width:600px){
+.filters{
 
-    .cards{
-        grid-template-columns:repeat(2,1fr);
-    }
+grid-template-columns:
+repeat(2,1fr);
 
-    .filters{
-        grid-template-columns:1fr;
-    }
 }
+
+}
+
+
+@media(max-width:700px){
+
+.cards{
+
+grid-template-columns:
+repeat(2,1fr);
+
+}
+
+.filters{
+
+grid-template-columns:1fr;
+
+}
+
+.chart-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.full{
+
+grid-column:auto;
+
+}
+
+}
+
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <div class="container">
+
+
+<!-- HEADER -->
 
 <div class="header">
 
-<h1>Meta Ad Performance Dashboard</h1>
+<h1>
+Meta Ad Performance Dashboard
+</h1>
 
 <p>
-Interactive dashboard for analyzing Meta advertising campaigns,
-engagement, impressions, clicks and conversions.
+Interactive Meta advertising analytics dashboard
+for campaigns, engagement, impressions, clicks and conversions.
 </p>
+
 
 <div class="platform-buttons">
 
-<button class="platform active" data-platform="Facebook">
+<button
+class="platform active"
+data-platform="Facebook">
+
 Facebook
+
 </button>
 
-<button class="platform" data-platform="Instagram">
+
+<button
+class="platform"
+data-platform="Instagram">
+
 Instagram
+
 </button>
 
 </div>
@@ -229,19 +445,34 @@ Instagram
 </div>
 
 
-<div class="status" id="status">
+<!-- STATUS -->
+
+<div
+class="status"
+id="status">
+
 Loading data...
+
 </div>
 
+
+<!-- FILTERS -->
 
 <div class="filters">
 
+
 <div class="filter-box">
 
-<label>Campaign</label>
+<label>
+Campaign
+</label>
 
 <select id="campaignFilter">
-<option value="">All Campaigns</option>
+
+<option value="">
+All Campaigns
+</option>
+
 </select>
 
 </div>
@@ -249,10 +480,16 @@ Loading data...
 
 <div class="filter-box">
 
-<label>Target Interest</label>
+<label>
+Target Interest
+</label>
 
 <select id="interestFilter">
-<option value="">All Interests</option>
+
+<option value="">
+All Interests
+</option>
+
 </select>
 
 </div>
@@ -260,10 +497,16 @@ Loading data...
 
 <div class="filter-box">
 
-<label>Month</label>
+<label>
+Month
+</label>
 
 <select id="monthFilter">
-<option value="">All Months</option>
+
+<option value="">
+All Months
+</option>
+
 </select>
 
 </div>
@@ -271,7 +514,9 @@ Loading data...
 
 <div class="filter-box">
 
-<label>Measure</label>
+<label>
+Measure
+</label>
 
 <select id="measureFilter">
 
@@ -306,96 +551,273 @@ Impressions
 </div>
 
 
+<!-- KPI CARDS -->
+
 <div class="cards">
 
-<div class="card">
-<div class="card-value" id="clicks">0</div>
-<div class="card-title">Clicks</div>
-</div>
 
 <div class="card">
-<div class="card-value" id="shares">0</div>
-<div class="card-title">Shares</div>
+
+<div
+class="card-value"
+id="clicks">
+
+0
+
 </div>
+
+<div class="card-title">
+Clicks
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="comments">0</div>
-<div class="card-title">Comments</div>
+
+<div
+class="card-value"
+id="shares">
+
+0
+
 </div>
+
+<div class="card-title">
+Shares
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="purchases">0</div>
-<div class="card-title">Purchases</div>
+
+<div
+class="card-value"
+id="comments">
+
+0
+
 </div>
+
+<div class="card-title">
+Comments
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="engagements">0</div>
-<div class="card-title">Engagements</div>
+
+<div
+class="card-value"
+id="purchases">
+
+0
+
 </div>
+
+<div class="card-title">
+Purchases
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="impressions">0</div>
-<div class="card-title">Impressions</div>
+
+<div
+class="card-value"
+id="engagements">
+
+0
+
 </div>
+
+<div class="card-title">
+Engagements
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="engagementRate">0%</div>
-<div class="card-title">Engagement Rate</div>
+
+<div
+class="card-value"
+id="impressions">
+
+0
+
 </div>
+
+<div class="card-title">
+Impressions
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="conversionRate">0%</div>
-<div class="card-title">Conversion Rate</div>
+
+<div
+class="card-value"
+id="engagementRate">
+
+0%
+
 </div>
+
+<div class="card-title">
+Engagement Rate
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="purchaseRate">0%</div>
-<div class="card-title">Purchase Rate</div>
+
+<div
+class="card-value"
+id="conversionRate">
+
+0%
+
 </div>
+
+<div class="card-title">
+Conversion Rate
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="totalBudget">₹0</div>
-<div class="card-title">Total Budget</div>
+
+<div
+class="card-value"
+id="purchaseRate">
+
+0%
+
 </div>
+
+<div class="card-title">
+Purchase Rate
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="avgBudget">₹0</div>
-<div class="card-title">Avg Budget/Campaign</div>
+
+<div
+class="card-value"
+id="totalBudget">
+
+₹0
+
 </div>
+
+<div class="card-title">
+Total Budget
+</div>
+
+</div>
+
 
 <div class="card">
-<div class="card-value" id="ctr">0%</div>
-<div class="card-title">CTR</div>
+
+<div
+class="card-value"
+id="avgBudget">
+
+₹0
+
+</div>
+
+<div class="card-title">
+Avg Budget/Campaign
 </div>
 
 </div>
 
+
+<div class="card">
+
+<div
+class="card-value"
+id="ctr">
+
+0%
+
+</div>
+
+<div class="card-title">
+CTR
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- CHARTS -->
 
 <div class="chart-grid">
 
+
 <div class="chart-box">
-<h3>Engagements by Age</h3>
+
+<h3>
+Engagements by Age
+</h3>
+
 <canvas id="ageChart"></canvas>
+
 </div>
 
+
 <div class="chart-box">
-<h3>Engagement by Target Gender</h3>
+
+<h3>
+Engagement by Target Gender
+</h3>
+
 <canvas id="genderChart"></canvas>
+
 </div>
 
+
 <div class="chart-box">
-<h3>Weekly Engagement by Ad Type</h3>
+
+<h3>
+Weekly Engagement
+</h3>
+
 <canvas id="weeklyChart"></canvas>
+
 </div>
 
+
 <div class="chart-box">
-<h3>Engagement by Country</h3>
+
+<h3>
+Engagement by Country
+</h3>
+
 <canvas id="countryChart"></canvas>
+
 </div>
+
 
 <div class="chart-box full">
 
-<h3>Ad Type Performance</h3>
+<h3>
+Ad Type Performance
+</h3>
+
 
 <div class="table-container">
 
@@ -404,18 +826,44 @@ Impressions
 <thead>
 
 <tr>
-<th>Ad Type</th>
-<th>Impressions</th>
-<th>Clicks</th>
-<th>CTR</th>
-<th>Purchase Rate</th>
-<th>Engagement Rate</th>
-<th>Conversion Rate</th>
+
+<th>
+Ad Type
+</th>
+
+<th>
+Impressions
+</th>
+
+<th>
+Clicks
+</th>
+
+<th>
+CTR
+</th>
+
+<th>
+Purchase Rate
+</th>
+
+<th>
+Engagement Rate
+</th>
+
+<th>
+Conversion Rate
+</th>
+
 </tr>
 
 </thead>
 
-<tbody id="performanceTable"></tbody>
+
+<tbody
+id="performanceTable">
+
+</tbody>
 
 </table>
 
@@ -423,32 +871,70 @@ Impressions
 
 </div>
 
+
 </div>
 
 </div>
+
 
 
 <script>
 
-let users=[];
-let campaigns=[];
-let ads=[];
-let events=[];
 
-let selectedPlatform="Facebook";
+/* =====================================================
+   DATA
+===================================================== */
 
-let charts={};
+let users = [];
+
+let campaigns = [];
+
+let ads = [];
+
+let events = [];
+
+let selectedPlatform = "Facebook";
+
+let charts = {};
 
 
-/* =========================
-CSV LOADER
-========================= */
+/* =====================================================
+   DIRECT GITHUB RAW FILES
+===================================================== */
 
-function loadCSV(file){
+const BASE_URL =
+"https://raw.githubusercontent.com/radhekant230-debug/meta-ad-dashboard/main/Raw%20Data/";
 
-return new Promise((resolve,reject)=>{
 
-Papa.parse(file,{
+const FILES = {
+
+users:
+BASE_URL + "users.csv",
+
+campaigns:
+BASE_URL + "campaigns.csv",
+
+ads:
+BASE_URL + "ads.csv",
+
+events:
+BASE_URL + "ad_events.csv"
+
+};
+
+
+/* =====================================================
+   CSV LOADER
+===================================================== */
+
+function loadCSV(url){
+
+return new Promise(
+(resolve,reject)=>{
+
+Papa.parse(
+url,
+{
 
 download:true,
 
@@ -456,65 +942,299 @@ header:true,
 
 skipEmptyLines:true,
 
-complete:result=>{
-resolve(result.data);
+dynamicTyping:false,
+
+complete:function(result){
+
+console.log(
+"Loaded:",
+url
+);
+
+console.log(
+"Rows:",
+result.data.length
+);
+
+console.log(
+"Errors:",
+result.errors
+);
+
+resolve(
+result.data
+);
+
 },
 
-error:error=>{
+error:function(error){
+
+console.error(
+"CSV ERROR:",
+url,
+error
+);
+
 reject(error);
-}
-
-});
-
-});
 
 }
 
+}
+);
 
-/* =========================
-FORMAT
-========================= */
+});
+
+}
+
+
+/* =====================================================
+   CLEAN VALUE
+===================================================== */
+
+function clean(value){
+
+return String(
+value ?? ""
+)
+.trim()
+.toLowerCase();
+
+}
+
+
+/* =====================================================
+   NORMALIZE ID
+===================================================== */
+
+function normalizeID(value){
+
+if(
+value === null ||
+value === undefined ||
+value === ""
+){
+
+return "";
+
+}
+
+
+let text =
+String(value)
+.trim();
+
+
+/*
+Fix cases like:
+
+1.20E+01
+
+12
+
+012
+
+*/
+
+const numeric =
+Number(text);
+
+
+if(
+Number.isFinite(numeric)
+){
+
+return String(
+Math.trunc(numeric)
+);
+
+}
+
+
+return text
+.toLowerCase();
+
+}
+
+
+/* =====================================================
+   NUMBER FORMAT
+===================================================== */
 
 function numberFormat(value){
 
-return new Intl.NumberFormat("en-IN",{
+return new Intl.NumberFormat(
+"en-IN",
+{
+
 maximumFractionDigits:0
-}).format(value||0);
 
 }
+).format(
+Number(value)||0
+);
+
+}
+
+
+/* =====================================================
+   PERCENTAGE
+===================================================== */
 
 function percentage(value){
 
-return ((value||0)*100).toFixed(2)+"%";
+return (
+(Number(value)||0)*100
+).toFixed(2)
++
+"%";
 
 }
 
 
-/* =========================
-LOAD DATA
-========================= */
+/* =====================================================
+   GET EVENT TYPE
+===================================================== */
+
+function getEventType(row){
+
+const possibleFields = [
+
+"event_type",
+
+"event",
+
+"action",
+
+"event_name",
+
+"type",
+
+"activity_type"
+
+];
+
+
+for(
+const field of possibleFields
+){
+
+if(
+row[field] !== undefined &&
+row[field] !== null &&
+String(row[field]).trim() !== ""
+){
+
+return clean(
+row[field]
+);
+
+}
+
+}
+
+
+return "";
+
+}
+
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
 
 async function loadData(){
 
 try{
 
-/*
-IMPORTANT:
-Folder name is EXACTLY "Raw Data"
-*/
 
-users=await loadCSV("Raw Data/users.csv");
-
-campaigns=await loadCSV("Raw Data/campaigns.csv");
-
-ads=await loadCSV("Raw Data/ads.csv");
-
-events=await loadCSV("Raw Data/ad_events.csv");
+document.getElementById(
+"status"
+).innerText =
+"Loading data from GitHub...";
 
 
-document.getElementById("status").innerText=
-"Data loaded successfully • "+
-numberFormat(events.length)+
+users =
+await loadCSV(
+FILES.users
+);
+
+
+campaigns =
+await loadCSV(
+FILES.campaigns
+);
+
+
+ads =
+await loadCSV(
+FILES.ads
+);
+
+
+events =
+await loadCSV(
+FILES.events
+);
+
+
+console.log(
+"===================="
+);
+
+console.log(
+"USERS:",
+users.length
+);
+
+console.log(
+"CAMPAIGNS:",
+campaigns.length
+);
+
+console.log(
+"ADS:",
+ads.length
+);
+
+console.log(
+"EVENTS:",
+events.length
+);
+
+console.log(
+"EVENT SAMPLE:",
+events[0]
+);
+
+console.log(
+"EVENT TYPE:",
+events[0]
+? getEventType(events[0])
+: "NONE"
+);
+
+
+if(
+events.length === 0
+){
+
+throw new Error(
+"ad_events.csv contains 0 rows"
+);
+
+}
+
+
+document.getElementById(
+"status"
+).innerText =
+
+"Data loaded successfully • " +
+
+numberFormat(
+events.length
+) +
+
 " event records";
 
 
@@ -522,202 +1242,350 @@ populateFilters();
 
 updateDashboard();
 
+
 }
 
 catch(error){
 
-console.error(error);
+console.error(
+error
+);
 
-document.getElementById("status").innerText=
-"ERROR: CSV files could not be loaded. Check Raw Data folder.";
+
+document.getElementById(
+"status"
+).innerText =
+
+"ERROR: " +
+error.message;
 
 }
 
 }
 
 
-/* =========================
-LOOKUPS
-========================= */
+/* =====================================================
+   CREATE LOOKUPS
+===================================================== */
 
 function createLookups(){
 
-const userMap=new Map();
+const userMap =
+new Map();
 
-users.forEach(user=>{
-userMap.set(user.user_id,user);
-});
+const adMap =
+new Map();
 
-
-const adMap=new Map();
-
-ads.forEach(ad=>{
-adMap.set(ad.ad_id,ad);
-});
+const campaignMap =
+new Map();
 
 
-const campaignMap=new Map();
+users.forEach(
+user=>{
 
-campaigns.forEach(campaign=>{
-campaignMap.set(
-campaign.campaign_id,
-campaign
+userMap.set(
+
+normalizeID(
+user.user_id
+),
+
+user
+
 );
+
 });
 
 
-return{
+ads.forEach(
+ad=>{
+
+adMap.set(
+
+normalizeID(
+ad.ad_id
+),
+
+ad
+
+);
+
+});
+
+
+campaigns.forEach(
+campaign=>{
+
+campaignMap.set(
+
+normalizeID(
+campaign.campaign_id
+),
+
+campaign
+
+);
+
+});
+
+
+return {
+
 userMap,
+
 adMap,
+
 campaignMap
+
 };
 
 }
 
 
-/* =========================
-FILTER DATA
-========================= */
+/* =====================================================
+   GET FILTERED DATA
+===================================================== */
 
 function getFilteredData(){
 
-const{
+const {
+
 userMap,
+
 adMap,
+
 campaignMap
-}=createLookups();
+
+} =
+createLookups();
 
 
-const campaignValue=
+const campaignValue =
 document.getElementById(
 "campaignFilter"
 ).value;
 
 
-const interestValue=
+const interestValue =
 document.getElementById(
 "interestFilter"
 ).value;
 
 
-const monthValue=
+const monthValue =
 document.getElementById(
 "monthFilter"
 ).value;
 
 
-return events
-
-.map(event=>{
-
-const ad=adMap.get(event.ad_id);
-
-if(!ad)return null;
+const result = [];
 
 
-const user=userMap.get(event.user_id);
-
-const campaign=
-campaignMap.get(ad.campaign_id);
+events.forEach(
+event=>{
 
 
-return{
+const ad =
+adMap.get(
 
-...event,
-...ad,
-...user,
-
-campaign_name:
-campaign?
-campaign.name:
-"Unknown"
-
-};
-
-})
-
-.filter(row=>row!==null)
-
-.filter(row=>
-row.ad_platform===selectedPlatform
+normalizeID(
+event.ad_id
 )
 
-.filter(row=>
-!campaignValue ||
-row.campaign_name===campaignValue
-)
-
-.filter(row=>
-!interestValue ||
-row.target_interests===interestValue
-)
-
-.filter(row=>
-!monthValue ||
-(
-row.timestamp &&
-row.timestamp.startsWith(monthValue)
-)
 );
+
+
+if(!ad){
+
+return;
 
 }
 
 
-/* =========================
-FILTER OPTIONS
-========================= */
+if(
+
+clean(
+ad.ad_platform
+) !==
+
+clean(
+selectedPlatform
+)
+
+){
+
+return;
+
+}
+
+
+const user =
+userMap.get(
+
+normalizeID(
+event.user_id
+)
+
+);
+
+
+const campaign =
+campaignMap.get(
+
+normalizeID(
+ad.campaign_id
+)
+
+);
+
+
+const campaignName =
+campaign
+? campaign.name
+: "Unknown";
+
+
+if(
+
+campaignValue &&
+campaignName !==
+campaignValue
+
+){
+
+return;
+
+}
+
+
+if(
+
+interestValue &&
+
+String(
+ad.target_interests || ""
+)
+.trim() !==
+interestValue
+
+){
+
+return;
+
+}
+
+
+if(
+
+monthValue &&
+
+!String(
+event.timestamp || ""
+)
+.startsWith(
+monthValue
+)
+
+){
+
+return;
+
+}
+
+
+result.push({
+
+...event,
+
+...ad,
+
+...(user || {}),
+
+campaign_name:
+campaignName
+
+});
+
+
+});
+
+
+return result;
+
+}
+
+
+/* =====================================================
+   FILTER OPTIONS
+===================================================== */
 
 function populateFilters(){
 
-const{
+const {
+
 adMap,
+
 campaignMap
-}=createLookups();
+
+} =
+createLookups();
 
 
-const platformAds=
-ads.filter(
-ad=>ad.ad_platform===selectedPlatform
-);
+const campaignNames =
+new Set();
+
+const interests =
+new Set();
+
+const months =
+new Set();
 
 
-const campaignNames=new Set();
+ads.forEach(
+ad=>{
 
-const interests=new Set();
-
-const months=new Set();
-
-
-platformAds.forEach(ad=>{
-
-const campaign=
-campaignMap.get(ad.campaign_id);
-
-if(campaign){
-campaignNames.add(campaign.name);
-}
-
-if(ad.target_interests){
-interests.add(ad.target_interests);
-}
-
-});
-
-
-events.forEach(event=>{
-
-const ad=adMap.get(event.ad_id);
-
-if(!ad)return;
 
 if(
-ad.ad_platform!==selectedPlatform
-)return;
 
-if(event.timestamp){
+clean(
+ad.ad_platform
+) !==
 
-months.add(
-event.timestamp.substring(0,7)
+clean(
+selectedPlatform
+)
+
+){
+
+return;
+
+}
+
+
+const campaign =
+campaignMap.get(
+
+normalizeID(
+ad.campaign_id
+)
+
+);
+
+
+if(campaign){
+
+campaignNames.add(
+campaign.name
+);
+
+}
+
+
+if(
+ad.target_interests
+){
+
+interests.add(
+ad.target_interests
 );
 
 }
@@ -725,37 +1593,121 @@ event.timestamp.substring(0,7)
 });
 
 
-const campaignSelect=
+events.forEach(
+event=>{
+
+
+const ad =
+adMap.get(
+
+normalizeID(
+event.ad_id
+)
+
+);
+
+
+if(!ad){
+
+return;
+
+}
+
+
+if(
+
+clean(
+ad.ad_platform
+) !==
+
+clean(
+selectedPlatform
+)
+
+){
+
+return;
+
+}
+
+
+if(
+event.timestamp
+){
+
+const date =
+new Date(
+event.timestamp
+);
+
+
+if(
+!isNaN(
+date.getTime()
+)
+){
+
+const month =
+date.getFullYear() +
+"-" +
+String(
+date.getMonth()+1
+)
+.padStart(
+2,
+"0"
+);
+
+months.add(
+month
+);
+
+}
+
+}
+
+});
+
+
+const campaignSelect =
 document.getElementById(
 "campaignFilter"
 );
 
-const interestSelect=
+
+const interestSelect =
 document.getElementById(
 "interestFilter"
 );
 
-const monthSelect=
+
+const monthSelect =
 document.getElementById(
 "monthFilter"
 );
 
 
-campaignSelect.innerHTML=
+campaignSelect.innerHTML =
 '<option value="">All Campaigns</option>';
 
-interestSelect.innerHTML=
+
+interestSelect.innerHTML =
 '<option value="">All Interests</option>';
 
-monthSelect.innerHTML=
+
+monthSelect.innerHTML =
 '<option value="">All Months</option>';
 
 
-[...campaignNames]
+[
+...campaignNames
+]
 .sort()
-.forEach(name=>{
+.forEach(
+name=>{
 
-campaignSelect.innerHTML+=
+campaignSelect.innerHTML +=
+
 `<option value="${name}">
 ${name}
 </option>`;
@@ -763,11 +1715,15 @@ ${name}
 });
 
 
-[...interests]
+[
+...interests
+]
 .sort()
-.forEach(interest=>{
+.forEach(
+interest=>{
 
-interestSelect.innerHTML+=
+interestSelect.innerHTML +=
+
 `<option value="${interest}">
 ${interest}
 </option>`;
@@ -775,11 +1731,15 @@ ${interest}
 });
 
 
-[...months]
+[
+...months
+]
 .sort()
-.forEach(month=>{
+.forEach(
+month=>{
 
-monthSelect.innerHTML+=
+monthSelect.innerHTML +=
+
 `<option value="${month}">
 ${month}
 </option>`;
@@ -789,96 +1749,208 @@ ${month}
 }
 
 
-/* =========================
-METRICS
-========================= */
+/* =====================================================
+   METRICS
+===================================================== */
 
 function calculateMetrics(rows){
 
-let impressions=0;
-let clicks=0;
-let shares=0;
-let comments=0;
-let purchases=0;
-let engagements=0;
+let impressions = 0;
+
+let clicks = 0;
+
+let shares = 0;
+
+let comments = 0;
+
+let purchases = 0;
+
+let likes = 0;
 
 
-rows.forEach(row=>{
-
-const type=row.event_type;
-
-
-if(type==="Impression")
-impressions++;
+rows.forEach(
+row=>{
 
 
-if(type==="Click")
-clicks++;
-
-
-if(type==="Share")
-shares++;
-
-
-if(type==="Comment")
-comments++;
-
-
-if(type==="Purchase")
-purchases++;
+const type =
+getEventType(row);
 
 
 if(
-type==="Click"||
-type==="Like"||
-type==="Comment"||
-type==="Share"
+[
+"impression",
+"impressions",
+"view",
+"views"
+]
+.includes(type)
 ){
 
-engagements++;
+impressions++;
+
+}
+
+
+if(
+[
+"click",
+"clicks"
+]
+.includes(type)
+){
+
+clicks++;
+
+}
+
+
+if(
+[
+"share",
+"shares"
+]
+.includes(type)
+){
+
+shares++;
+
+}
+
+
+if(
+[
+"comment",
+"comments"
+]
+.includes(type)
+){
+
+comments++;
+
+}
+
+
+if(
+[
+"purchase",
+"purchases",
+"conversion",
+"conversions"
+]
+.includes(type)
+){
+
+purchases++;
+
+}
+
+
+if(
+[
+"like",
+"likes"
+]
+.includes(type)
+){
+
+likes++;
 
 }
 
 });
 
 
-const ctr=
-impressions?
-clicks/impressions:
+const engagements =
+clicks +
+shares +
+comments +
+likes;
+
+
+const ctr =
+impressions
+?
+clicks / impressions
+:
 0;
 
 
-const engagementRate=
-impressions?
-engagements/impressions:
+const engagementRate =
+impressions
+?
+engagements / impressions
+:
 0;
 
 
-const purchaseRate=
-impressions?
-purchases/impressions:
+const purchaseRate =
+impressions
+?
+purchases / impressions
+:
 0;
 
 
-const conversionRate=
-clicks?
-purchases/clicks:
+const conversionRate =
+clicks
+?
+purchases / clicks
+:
 0;
 
 
-const budgets=new Map();
+return {
+
+impressions,
+
+clicks,
+
+shares,
+
+comments,
+
+purchases,
+
+likes,
+
+engagements,
+
+ctr,
+
+engagementRate,
+
+purchaseRate,
+
+conversionRate
+
+};
+
+}
 
 
-rows.forEach(row=>{
+/* =====================================================
+   BUDGET
+===================================================== */
+
+function calculateBudget(rows){
+
+const campaignIDs =
+new Set();
+
+
+rows.forEach(
+row=>{
 
 if(
-row.campaign_id &&
-row.total_budget
+row.campaign_id
 ){
 
-budgets.set(
-row.campaign_id,
-Number(row.total_budget)
+campaignIDs.add(
+
+normalizeID(
+row.campaign_id
+)
+
 );
 
 }
@@ -886,103 +1958,219 @@ Number(row.total_budget)
 });
 
 
-let totalBudget=0;
+let total = 0;
 
-budgets.forEach(value=>{
-totalBudget+=value;
+let count = 0;
+
+
+campaigns.forEach(
+campaign=>{
+
+const id =
+normalizeID(
+campaign.campaign_id
+);
+
+
+if(
+campaignIDs.has(id)
+){
+
+const budget =
+parseFloat(
+campaign.total_budget
+);
+
+
+if(
+Number.isFinite(
+budget
+)
+){
+
+total += budget;
+
+count++;
+
+}
+
+}
+
 });
 
 
-const avgBudget=
-budgets.size?
-totalBudget/budgets.size:
-0;
+return {
 
+total,
 
-return{
-impressions,
-clicks,
-shares,
-comments,
-purchases,
-engagements,
-ctr,
-engagementRate,
-purchaseRate,
-conversionRate,
-totalBudget,
-avgBudget
+average:
+count
+?
+total / count
+:
+0
+
 };
 
 }
 
 
-/* =========================
-UPDATE CARDS
-========================= */
+/* =====================================================
+   UPDATE KPI
+===================================================== */
 
-function updateKPIs(m){
+function updateKPIs(
+metrics,
+budget
+){
 
-document.getElementById("clicks").innerText=
-numberFormat(m.clicks);
+document.getElementById(
+"clicks"
+).innerText =
+numberFormat(
+metrics.clicks
+);
 
-document.getElementById("shares").innerText=
-numberFormat(m.shares);
 
-document.getElementById("comments").innerText=
-numberFormat(m.comments);
+document.getElementById(
+"shares"
+).innerText =
+numberFormat(
+metrics.shares
+);
 
-document.getElementById("purchases").innerText=
-numberFormat(m.purchases);
 
-document.getElementById("engagements").innerText=
-numberFormat(m.engagements);
+document.getElementById(
+"comments"
+).innerText =
+numberFormat(
+metrics.comments
+);
 
-document.getElementById("impressions").innerText=
-numberFormat(m.impressions);
 
-document.getElementById("engagementRate").innerText=
-percentage(m.engagementRate);
+document.getElementById(
+"purchases"
+).innerText =
+numberFormat(
+metrics.purchases
+);
 
-document.getElementById("conversionRate").innerText=
-percentage(m.conversionRate);
 
-document.getElementById("purchaseRate").innerText=
-percentage(m.purchaseRate);
+document.getElementById(
+"engagements"
+).innerText =
+numberFormat(
+metrics.engagements
+);
 
-document.getElementById("totalBudget").innerText=
-"₹"+numberFormat(m.totalBudget);
 
-document.getElementById("avgBudget").innerText=
-"₹"+numberFormat(m.avgBudget);
+document.getElementById(
+"impressions"
+).innerText =
+numberFormat(
+metrics.impressions
+);
 
-document.getElementById("ctr").innerText=
-percentage(m.ctr);
+
+document.getElementById(
+"engagementRate"
+).innerText =
+percentage(
+metrics.engagementRate
+);
+
+
+document.getElementById(
+"conversionRate"
+).innerText =
+percentage(
+metrics.conversionRate
+);
+
+
+document.getElementById(
+"purchaseRate"
+).innerText =
+percentage(
+metrics.purchaseRate
+);
+
+
+document.getElementById(
+"totalBudget"
+).innerText =
+"₹" +
+numberFormat(
+budget.total
+);
+
+
+document.getElementById(
+"avgBudget"
+).innerText =
+"₹" +
+numberFormat(
+budget.average
+);
+
+
+document.getElementById(
+"ctr"
+).innerText =
+percentage(
+metrics.ctr
+);
 
 }
 
 
-/* =========================
-GROUP DATA
-========================= */
+/* =====================================================
+   GROUP DATA
+===================================================== */
 
-function groupData(rows,field){
+function groupData(
+rows,
+field
+){
 
-const result={};
+const result = {};
 
-rows.forEach(row=>{
 
-const key=row[field]||"Unknown";
+rows.forEach(
+row=>{
 
-if(!result[key])
-result[key]=0;
+const key =
+row[field] ||
+"Unknown";
 
 
 if(
-row.event_type==="Click"||
-row.event_type==="Like"||
-row.event_type==="Comment"||
-row.event_type==="Share"
+!result[key]
+){
+
+result[key] = 0;
+
+}
+
+
+const type =
+getEventType(row);
+
+
+if(
+
+[
+"click",
+"clicks",
+"like",
+"likes",
+"comment",
+"comments",
+"share",
+"shares"
+]
+.includes(type)
+
 ){
 
 result[key]++;
@@ -991,47 +2179,64 @@ result[key]++;
 
 });
 
+
 return result;
 
 }
 
 
-/* =========================
-AGE CHART
-========================= */
+/* =====================================================
+   AGE CHART
+===================================================== */
 
 function createAgeChart(rows){
 
-if(charts.age)
+if(
+charts.age
+){
+
 charts.age.destroy();
 
-
-const data=
-groupData(rows,"user_age");
+}
 
 
-const labels=
-Object.keys(data)
-.sort(
-(a,b)=>Number(a)-Number(b)
+const data =
+groupData(
+rows,
+"user_age"
 );
 
 
-charts.age=new Chart(
-document.getElementById("ageChart"),
+const labels =
+Object.keys(data)
+.sort(
+(a,b)=>
+Number(a)-Number(b)
+);
+
+
+charts.age =
+new Chart(
+
+document.getElementById(
+"ageChart"
+),
+
 {
 
 type:"bar",
 
 data:{
 
-labels:labels,
+labels,
 
 datasets:[{
 
-label:"Engagements",
+label:
+"Engagements",
 
-data:labels.map(
+data:
+labels.map(
 x=>data[x]
 )
 
@@ -1040,85 +2245,125 @@ x=>data[x]
 },
 
 options:{
+
 responsive:true,
+
 maintainAspectRatio:false
-}
-
-});
 
 }
 
+}
 
-/* =========================
-GENDER
-========================= */
+);
+
+}
+
+
+/* =====================================================
+   GENDER CHART
+===================================================== */
 
 function createGenderChart(rows){
 
-if(charts.gender)
+if(
+charts.gender
+){
+
 charts.gender.destroy();
 
+}
 
-const data=
+
+const data =
 groupData(
 rows,
 "target_gender"
 );
 
 
-charts.gender=new Chart(
-document.getElementById("genderChart"),
+charts.gender =
+new Chart(
+
+document.getElementById(
+"genderChart"
+),
+
 {
 
 type:"doughnut",
 
 data:{
 
-labels:Object.keys(data),
+labels:
+Object.keys(data),
 
 datasets:[{
 
-data:Object.values(data)
+data:
+Object.values(data)
 
 }]
 
 },
 
 options:{
+
 responsive:true,
+
 maintainAspectRatio:false
-}
-
-});
 
 }
 
+}
 
-/* =========================
-COUNTRY
-========================= */
+);
+
+}
+
+
+/* =====================================================
+   COUNTRY CHART
+===================================================== */
 
 function createCountryChart(rows){
 
-if(charts.country)
+if(
+charts.country
+){
+
 charts.country.destroy();
 
+}
 
-const data=
+
+const data =
 groupData(
 rows,
 "country"
 );
 
 
-const sorted=
+const sorted =
 Object.entries(data)
-.sort((a,b)=>b[1]-a[1])
-.slice(0,10);
+
+.sort(
+(a,b)=>
+b[1]-a[1]
+)
+
+.slice(
+0,
+10
+);
 
 
-charts.country=new Chart(
-document.getElementById("countryChart"),
+charts.country =
+new Chart(
+
+document.getElementById(
+"countryChart"
+),
+
 {
 
 type:"bar",
@@ -1126,14 +2371,19 @@ type:"bar",
 data:{
 
 labels:
-sorted.map(x=>x[0]),
+sorted.map(
+x=>x[0]
+),
 
 datasets:[{
 
-label:"Engagements",
+label:
+"Engagements",
 
 data:
-sorted.map(x=>x[1])
+sorted.map(
+x=>x[1]
+)
 
 }]
 
@@ -1149,61 +2399,118 @@ maintainAspectRatio:false
 
 }
 
-});
+}
+
+);
 
 }
 
 
-/* =========================
-WEEKLY
-========================= */
+/* =====================================================
+   WEEKLY CHART
+===================================================== */
 
 function createWeeklyChart(rows){
 
-if(charts.weekly)
+if(
+charts.weekly
+){
+
 charts.weekly.destroy();
 
+}
 
-const weeks={};
+
+const weeks = {};
 
 
-rows.forEach(row=>{
+rows.forEach(
+row=>{
 
-if(!row.timestamp)
+
+if(
+!row.timestamp
+){
+
 return;
 
-
-const date=
-new Date(row.timestamp);
+}
 
 
-const week=
-Math.ceil(
-(
-(
-date-
+const date =
+new Date(
+row.timestamp
+);
+
+
+if(
+isNaN(
+date.getTime()
+)
+){
+
+return;
+
+}
+
+
+const start =
 new Date(
 date.getFullYear(),
 0,
 1
-)
-)/86400000
-)/7
 );
 
 
-const key="Week "+week;
+const week =
+Math.ceil(
+
+(
+(
+date -
+start
+) /
+86400000
++
+start.getDay()
++
+1
+) / 7
+
+);
 
 
-if(!weeks[key])
-weeks[key]=0;
+const key =
+"Week " + week;
 
 
 if(
-row.event_type==="Click"||
-row.event_type==="Like"||
-row.event_type==="Comment"||
-row.event_type==="Share"
+!weeks[key]
+){
+
+weeks[key] = 0;
+
+}
+
+
+const type =
+getEventType(row);
+
+
+if(
+
+[
+"click",
+"clicks",
+"like",
+"likes",
+"comment",
+"comments",
+"share",
+"shares"
+]
+.includes(type)
+
 ){
 
 weeks[key]++;
@@ -1213,23 +2520,29 @@ weeks[key]++;
 });
 
 
-const labels=
+const labels =
 Object.keys(weeks);
 
 
-charts.weekly=new Chart(
-document.getElementById("weeklyChart"),
+charts.weekly =
+new Chart(
+
+document.getElementById(
+"weeklyChart"
+),
+
 {
 
 type:"line",
 
 data:{
 
-labels:labels,
+labels,
 
 datasets:[{
 
-label:"Engagements",
+label:
+"Engagements",
 
 data:
 labels.map(
@@ -1243,121 +2556,191 @@ tension:.3
 },
 
 options:{
+
 responsive:true,
+
 maintainAspectRatio:false
-}
-
-});
 
 }
 
+}
 
-/* =========================
-TABLE
-========================= */
+);
+
+}
+
+
+/* =====================================================
+   PERFORMANCE TABLE
+===================================================== */
 
 function createTable(rows){
 
-const groups={};
+const groups = {};
 
 
-rows.forEach(row=>{
-
-const type=
-row.ad_type||"Unknown";
+rows.forEach(
+row=>{
 
 
-if(!groups[type]){
+const type =
+row.ad_type ||
+"Unknown";
 
-groups[type]={
-Impression:0,
-Click:0,
-Purchase:0,
-Like:0,
-Comment:0,
-Share:0
+
+if(
+!groups[type]
+){
+
+groups[type] = {
+
+impression:0,
+
+click:0,
+
+purchase:0,
+
+like:0,
+
+comment:0,
+
+share:0
+
 };
 
 }
 
 
+const event =
+getEventType(row);
+
+
 if(
-groups[type][row.event_type]
-!==undefined
+groups[type][event]
+!== undefined
 ){
 
-groups[type][row.event_type]++;
+groups[type][event]++;
 
 }
 
 });
 
 
-const table=
+const table =
 document.getElementById(
 "performanceTable"
 );
 
-table.innerHTML="";
+
+table.innerHTML = "";
 
 
-Object.entries(groups)
-.forEach(([type,data])=>{
-
-const impressions=
-data.Impression;
-
-const clicks=
-data.Click;
-
-const purchases=
-data.Purchase;
-
-const engagements=
-data.Click+
-data.Like+
-data.Comment+
-data.Share;
+Object.entries(
+groups
+)
+.forEach(
+([type,data])=>{
 
 
-const ctr=
-impressions?
-clicks/impressions:
+const impressions =
+data.impression;
+
+
+const clicks =
+data.click;
+
+
+const purchases =
+data.purchase;
+
+
+const engagements =
+
+data.click +
+
+data.like +
+
+data.comment +
+
+data.share;
+
+
+const ctr =
+impressions
+?
+clicks / impressions
+:
 0;
 
-const purchaseRate=
-impressions?
-purchases/impressions:
-0;
 
-const engagementRate=
-impressions?
-engagements/impressions:
-0;
-
-const conversionRate=
-clicks?
-purchases/clicks:
+const purchaseRate =
+impressions
+?
+purchases / impressions
+:
 0;
 
 
-table.innerHTML+=`
+const engagementRate =
+impressions
+?
+engagements / impressions
+:
+0;
+
+
+const conversionRate =
+clicks
+?
+purchases / clicks
+:
+0;
+
+
+table.innerHTML += `
 
 <tr>
 
-<td>${type}</td>
+<td>
+${type}
+</td>
 
-<td>${numberFormat(impressions)}</td>
+<td>
+${numberFormat(
+impressions
+)}
+</td>
 
-<td>${numberFormat(clicks)}</td>
+<td>
+${numberFormat(
+clicks
+)}
+</td>
 
-<td>${percentage(ctr)}</td>
+<td>
+${percentage(
+ctr
+)}
+</td>
 
-<td>${percentage(purchaseRate)}</td>
+<td>
+${percentage(
+purchaseRate
+)}
+</td>
 
-<td>${percentage(engagementRate)}</td>
+<td>
+${percentage(
+engagementRate
+)}
+</td>
 
-<td>${percentage(conversionRate)}</td>
+<td>
+${percentage(
+conversionRate
+)}
+</td>
 
 </tr>
 
@@ -1368,68 +2751,128 @@ table.innerHTML+=`
 }
 
 
-/* =========================
-UPDATE DASHBOARD
-========================= */
+/* =====================================================
+   UPDATE DASHBOARD
+===================================================== */
 
 function updateDashboard(){
 
-const rows=
+const rows =
 getFilteredData();
 
 
-const metrics=
-calculateMetrics(rows);
+console.log(
+"Filtered rows:",
+rows.length
+);
 
 
-updateKPIs(metrics);
-
-createAgeChart(rows);
-
-createGenderChart(rows);
-
-createWeeklyChart(rows);
-
-createCountryChart(rows);
-
-createTable(rows);
+const metrics =
+calculateMetrics(
+rows
+);
 
 
-document.getElementById("status").innerText=
-numberFormat(rows.length)+
-" event records • "+
+const budget =
+calculateBudget(
+rows
+);
+
+
+console.log(
+"Metrics:",
+metrics
+);
+
+
+updateKPIs(
+metrics,
+budget
+);
+
+
+createAgeChart(
+rows
+);
+
+
+createGenderChart(
+rows
+);
+
+
+createWeeklyChart(
+rows
+);
+
+
+createCountryChart(
+rows
+);
+
+
+createTable(
+rows
+);
+
+
+document.getElementById(
+"status"
+).innerText =
+
+numberFormat(
+rows.length
+) +
+
+" event records • " +
+
 selectedPlatform;
 
 }
 
 
-/* =========================
-PLATFORM
-========================= */
+/* =====================================================
+   PLATFORM BUTTONS
+===================================================== */
 
 document
-.querySelectorAll(".platform")
-.forEach(button=>{
+.querySelectorAll(
+".platform"
+)
+.forEach(
+button=>{
+
 
 button.addEventListener(
 "click",
 function(){
 
+
 document
-.querySelectorAll(".platform")
-.forEach(btn=>
-btn.classList.remove("active")
+.querySelectorAll(
+".platform"
+)
+.forEach(
+btn=>{
+
+btn.classList.remove(
+"active"
+);
+
+});
+
+
+this.classList.add(
+"active"
 );
 
 
-this.classList.add("active");
-
-
-selectedPlatform=
+selectedPlatform =
 this.dataset.platform;
 
 
 populateFilters();
+
 
 updateDashboard();
 
@@ -1440,46 +2883,49 @@ updateDashboard();
 });
 
 
-/* =========================
-FILTER EVENTS
-========================= */
+/* =====================================================
+   FILTER EVENTS
+===================================================== */
 
 document
-.getElementById("campaignFilter")
-.addEventListener(
-"change",
-updateDashboard
-);
-
-document
-.getElementById("interestFilter")
-.addEventListener(
-"change",
-updateDashboard
-);
-
-document
-.getElementById("monthFilter")
-.addEventListener(
-"change",
-updateDashboard
-);
-
-document
-.getElementById("measureFilter")
+.getElementById(
+"campaignFilter"
+)
 .addEventListener(
 "change",
 updateDashboard
 );
 
 
-/* =========================
-START
-========================= */
+document
+.getElementById(
+"interestFilter"
+)
+.addEventListener(
+"change",
+updateDashboard
+);
+
+
+document
+.getElementById(
+"monthFilter"
+)
+.addEventListener(
+"change",
+updateDashboard
+);
+
+
+/* =====================================================
+   START
+===================================================== */
 
 loadData();
+
 
 </script>
 
 </body>
+
 </html>
