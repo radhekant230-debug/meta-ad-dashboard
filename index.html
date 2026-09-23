@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Meta Ad Performance Dashboard</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Papa Parse -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.3/papaparse.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #eef6ff;
+            color: #172033;
+        }
+
+        .container {
+            max-width: 1450px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #1877f2;
+            font-size: 28px;
+        }
+
+        .header p {
+            color: #667085;
+            margin-bottom: 0;
+        }
+
+        /* PLATFORM */
+        .platform-buttons {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .platform-buttons button {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .platform-buttons button.active {
+            background: #1877f2;
+            color: white;
+        }
+
+        /* FILTERS */
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .filter-box {
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .filter-box label {
+            display: block;
+            font-size: 12px;
+            color: #667085;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .filter-box select {
+            width: 100%;
+            padding: 9px;
+            border: 1px solid #d9e2ec;
+            border-radius: 7px;
+        }
+
+        /* KPI CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .card-value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1877f2;
+        }
+
+        .card-title {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #667085;
+        }
+
+        /* CHART GRID */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            min-height: 350px;
+        }
+
+        .chart-box h3 {
+            margin-top: 0;
+            font-size: 15px;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        /* TABLE */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: right;
+            font-size: 12px;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+
+        th {
+            background: #f5f8fc;
+            color: #667085;
+        }
+
+        .status {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            color: #667085;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+        @media(max-width: 1000px) {
+
+            .cards {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .filters {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media(max-width: 600px) {
+
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filters {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Meta Ad Performance Dashboard</h1>
+        <p>
+            Interactive dashboard for analyzing Meta advertising campaigns,
+            engagement, impressions, clicks and conversions.
+        </p>
+
+        <div class="platform-buttons">
+            <button class="platform active" data-platform="Facebook">
+                Facebook
+            </button>
+
+            <button class="platform" data-platform="Instagram">
+                Instagram
+            </button>
+        </div>
+    </div>
+
+
+    <!-- STATUS -->
+    <div class="status" id="status">
+        Loading dashboard data...
+    </div>
+
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+        <div class="filter-box">
+            <label>Campaign</label>
+
+            <select id="campaignFilter">
+                <option value="">All Campaigns</option>
+            </select>
+        </div>
+
+
+        <div class="filter-box">
+            <label>Target Interest</label>
+
+            <select id="interestFilter">
+                <option value="">All Interests</option>
+            </select>
+        </div>
+
+
+        <div class="filter-box">
+            <label>Month</label>
+
+            <select id="monthFilter">
+                <option value="">All Months</option>
+            </select>
+        </div>
+
+
+        <div class="filter-box">
+            <label>Measure</label>
+
+            <select id="measureFilter">
+
+                <option value="Engagements">
+                    Engagements
+                </option>
+
+                <option value="Clicks">
+                    Clicks
+                </option>
+
+                <option value="Shares">
+                    Shares
+                </option>
+
+                <option value="Comments">
+                    Comments
+                </option>
+
+                <option value="Purchases">
+                    Purchases
+                </option>
+
+                <option value="Impressions">
+                    Impressions
+                </option>
+
+            </select>
+        </div>
+
+    </div>
+
+
+    <!-- KPI CARDS -->
+    <div class="cards">
+
+        <div class="card">
+            <div class="card-value" id="clicks">0</div>
+            <div class="card-title">Clicks</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="shares">0</div>
+            <div class="card-title">Shares</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="comments">0</div>
+            <div class="card-title">Comments</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="purchases">0</div>
+            <div class="card-title">Purchases</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="engagements">0</div>
+            <div class="card-title">Engagements</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="impressions">0</div>
+            <div class="card-title">Impressions</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="engagementRate">0%</div>
+            <div class="card-title">Engagement Rate</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="conversionRate">0%</div>
+            <div class="card-title">Conversion Rate</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="purchaseRate">0%</div>
+            <div class="card-title">Purchase Rate</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="totalBudget">₹0</div>
+            <div class="card-title">Total Budget</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="avgBudget">₹0</div>
+            <div class="card-title">Avg Budget/Campaign</div>
+        </div>
+
+        <div class="card">
+            <div class="card-value" id="ctr">0%</div>
+            <div class="card-title">CTR</div>
+        </div>
+
+    </div>
+
+
+    <!-- CHARTS -->
+    <div class="chart-grid">
+
+        <div class="chart-box">
+            <h3>Engagements by Age</h3>
+            <canvas id="ageChart"></canvas>
+        </div>
+
+
+        <div class="chart-box">
+            <h3>Engagement by Target Gender</h3>
+            <canvas id="genderChart"></canvas>
+        </div>
+
+
+        <div class="chart-box">
+            <h3>Weekly Engagement by Ad Type</h3>
+            <canvas id="weeklyChart"></canvas>
+        </div>
+
+
+        <div class="chart-box">
+            <h3>Engagement by Country</h3>
+            <canvas id="countryChart"></canvas>
+        </div>
+
+
+        <!-- TABLE -->
+        <div class="chart-box full">
+
+            <h3>Ad Type Performance</h3>
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Ad Type</th>
+                            <th>Impressions</th>
+                            <th>Clicks</th>
+                            <th>CTR</th>
+                            <th>Purchase Rate</th>
+                            <th>Engagement Rate</th>
+                            <th>Conversion Rate</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="performanceTable"></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =========================================
+       DATA
+    ========================================= */
+
+    let users = [];
+    let campaigns = [];
+    let ads = [];
+    let events = [];
+
+    let selectedPlatform = "Facebook";
+
+    let charts = {};
+
+
+    /* =========================================
+       CSV LOADER
+    ========================================= */
+
+    function loadCSV(file) {
+
+        return new Promise((resolve, reject) => {
+
+            Papa.parse(file, {
+
+                download: true,
+
+                header: true,
+
+                skipEmptyLines: true,
+
+                complete: function(results) {
+
+                    resolve(results.data);
+
+                },
+
+                error: function(error) {
+
+                    reject(error);
+
+                }
+
+            });
+
+        });
+
+    }
+
+
+    /* =========================================
+       FORMAT
+    ========================================= */
+
+    function numberFormat(value) {
+
+        return new Intl.NumberFormat("en-IN", {
+            maximumFractionDigits: 0
+        }).format(value || 0);
+
+    }
+
+
+    function percentage(value) {
+
+        return ((value || 0) * 100).toFixed(2) + "%";
+
+    }
+
+
+    /* =========================================
+       LOAD DATA
+    ========================================= */
+
+    async function loadData() {
+
+        try {
+
+            /*
+             IMPORTANT:
+             Your folder name is "raw data"
+            */
+
+            users = await loadCSV("raw data/users.csv");
+
+            campaigns = await loadCSV("raw data/campaigns.csv");
+
+            ads = await loadCSV("raw data/ads.csv");
+
+            events = await loadCSV("raw data/ad_events.csv");
+
+
+            document.getElementById("status").innerText =
+                "Data loaded successfully • " +
+                events.length.toLocaleString() +
+                " event records";
+
+
+            populateFilters();
+
+            updateDashboard();
+
+        }
+
+        catch(error) {
+
+            console.error(error);
+
+            document.getElementById("status").innerText =
+                "Error loading data. Please check the 'raw data' folder and CSV filenames.";
+
+        }
+
+    }
+
+
+    /* =========================================
+       CREATE LOOKUPS
+    ========================================= */
+
+    function createLookups() {
+
+        const userMap = new Map();
+
+        users.forEach(user => {
+
+            userMap.set(
+                user.user_id,
+                user
+            );
+
+        });
+
+
+        const adMap = new Map();
+
+        ads.forEach(ad => {
+
+            adMap.set(
+                ad.ad_id,
+                ad
+            );
+
+        });
+
+
+        const campaignMap = new Map();
+
+        campaigns.forEach(campaign => {
+
+            campaignMap.set(
+                campaign.campaign_id,
+                campaign
+            );
+
+        });
+
+
+        return {
+            userMap,
+            adMap,
+            campaignMap
+        };
+
+    }
+
+
+    /* =========================================
+       FILTER EVENTS
+    ========================================= */
+
+    function getFilteredData() {
+
+        const {
+            userMap,
+            adMap,
+            campaignMap
+        } = createLookups();
+
+
+        const campaignValue =
+            document.getElementById("campaignFilter").value;
+
+        const interestValue =
+            document.getElementById("interestFilter").value;
+
+        const monthValue =
+            document.getElementById("monthFilter").value;
+
+
+        return events
+            .map(event => {
+
+                const ad =
+                    adMap.get(event.ad_id);
+
+                if (!ad) return null;
+
+
+                const user =
+                    userMap.get(event.user_id);
+
+
+                const campaign =
+                    campaignMap.get(ad.campaign_id);
+
+
+                return {
+
+                    ...event,
+
+                    ...ad,
+
+                    ...user,
+
+                    campaign_name:
+                        campaign
+                        ? campaign.name
+                        : "Unknown"
+
+                };
+
+            })
+
+            .filter(row => row !== null)
+
+            .filter(row => {
+
+                return row.ad_platform === selectedPlatform;
+
+            })
+
+            .filter(row => {
+
+                if (!campaignValue)
+                    return true;
+
+                return row.campaign_name === campaignValue;
+
+            })
+
+            .filter(row => {
+
+                if (!interestValue)
+                    return true;
+
+                return row.target_interests === interestValue;
+
+            })
+
+            .filter(row => {
+
+                if (!monthValue)
+                    return true;
+
+                return row.timestamp &&
+                    row.timestamp.startsWith(monthValue);
+
+            });
+
+    }
+
+
+    /* =========================================
+       FILTER OPTIONS
+    ========================================= */
+
+    function populateFilters() {
+
+        const {
+            adMap,
+            campaignMap
+        } = createLookups();
+
+
+        const platformAds =
+            ads.filter(ad =>
+                ad.ad_platform === selectedPlatform
+            );
+
+
+        const campaignNames = new Set();
+
+        const interests = new Set();
+
+        const months = new Set();
+
+
+        platformAds.forEach(ad => {
+
+            const campaign =
+                campaignMap.get(ad.campaign_id);
+
+            if (campaign) {
+
+                campaignNames.add(
+                    campaign.name
+                );
+
+            }
+
+
+            if (ad.target_interests) {
+
+                interests.add(
+                    ad.target_interests
+                );
+
+            }
+
+        });
+
+
+        events.forEach(event => {
+
+            const ad =
+                adMap.get(event.ad_id);
+
+            if (!ad) return;
+
+
+            if (ad.ad_platform !== selectedPlatform)
+                return;
+
+
+            if (event.timestamp) {
+
+                months.add(
+                    event.timestamp.substring(0, 7)
+                );
+
+            }
+
+        });
+
+
+        const campaignSelect =
+            document.getElementById("campaignFilter");
+
+        const interestSelect =
+            document.getElementById("interestFilter");
+
+        const monthSelect =
+            document.getElementById("monthFilter");
+
+
+        campaignSelect.innerHTML =
+            '<option value="">All Campaigns</option>';
+
+
+        interestSelect.innerHTML =
+            '<option value="">All Interests</option>';
+
+
+        monthSelect.innerHTML =
+            '<option value="">All Months</option>';
+
+
+        [...campaignNames]
+            .sort()
+            .forEach(name => {
+
+                campaignSelect.innerHTML +=
+                    `<option value="${name}">
+                        ${name}
+                    </option>`;
+
+            });
+
+
+        [...interests]
+            .sort()
+            .forEach(interest => {
+
+                interestSelect.innerHTML +=
+                    `<option value="${interest}">
+                        ${interest}
+                    </option>`;
+
+            });
+
+
+        [...months]
+            .sort()
+            .forEach(month => {
+
+                monthSelect.innerHTML +=
+                    `<option value="${month}">
+                        ${month}
+                    </option>`;
+
+            });
+
+    }
+
+
+    /* =========================================
+       METRICS
+    ========================================= */
+
+    function calculateMetrics(rows) {
+
+        let impressions = 0;
+        let clicks = 0;
+        let shares = 0;
+        let comments = 0;
+        let purchases = 0;
+        let engagements = 0;
+
+
+        rows.forEach(row => {
+
+            const type =
+                row.event_type;
+
+
+            if (type === "Impression")
+                impressions++;
+
+
+            if (type === "Click")
+                clicks++;
+
+
+            if (type === "Share")
+                shares++;
+
+
+            if (type === "Comment")
+                comments++;
+
+
+            if (type === "Purchase")
+                purchases++;
+
+
+            if (
+                type === "Click" ||
+                type === "Like" ||
+                type === "Comment" ||
+                type === "Share"
+            ) {
+
+                engagements++;
+
+            }
+
+        });
+
+
+        const ctr =
+            impressions
+                ? clicks / impressions
+                : 0;
+
+
+        const engagementRate =
+            impressions
+                ? engagements / impressions
+                : 0;
+
+
+        const purchaseRate =
+            impressions
+                ? purchases / impressions
+                : 0;
+
+
+        const conversionRate =
+            clicks
+                ? purchases / clicks
+                : 0;
+
+
+        /*
+           Budget
+        */
+
+        const budgets = new Map();
+
+
+        rows.forEach(row => {
+
+            if (
+                row.campaign_id &&
+                row.total_budget
+            ) {
+
+                budgets.set(
+                    row.campaign_id,
+                    Number(row.total_budget)
+                );
+
+            }
+
+        });
+
+
+        let totalBudget = 0;
+
+
+        budgets.forEach(value => {
+
+            totalBudget += value;
+
+        });
+
+
+        const avgBudget =
+            budgets.size
+                ? totalBudget / budgets.size
+                : 0;
+
+
+        return {
+
+            impressions,
+            clicks,
+            shares,
+            comments,
+            purchases,
+            engagements,
+            ctr,
+            engagementRate,
+            purchaseRate,
+            conversionRate,
+            totalBudget,
+            avgBudget
+
+        };
+
+    }
+
+
+    /* =========================================
+       KPI
+    ========================================= */
+
+    function updateKPIs(metrics) {
+
+        document.getElementById("clicks").innerText =
+            numberFormat(metrics.clicks);
+
+
+        document.getElementById("shares").innerText =
+            numberFormat(metrics.shares);
+
+
+        document.getElementById("comments").innerText =
+            numberFormat(metrics.comments);
+
+
+        document.getElementById("purchases").innerText =
+            numberFormat(metrics.purchases);
+
+
+        document.getElementById("engagements").innerText =
+            numberFormat(metrics.engagements);
+
+
+        document.getElementById("impressions").innerText =
+            numberFormat(metrics.impressions);
+
+
+        document.getElementById("engagementRate").innerText =
+            percentage(metrics.engagementRate);
+
+
+        document.getElementById("conversionRate").innerText =
+            percentage(metrics.conversionRate);
+
+
+        document.getElementById("purchaseRate").innerText =
+            percentage(metrics.purchaseRate);
+
+
+        document.getElementById("totalBudget").innerText =
+            "₹" + numberFormat(metrics.totalBudget);
+
+
+        document.getElementById("avgBudget").innerText =
+            "₹" + numberFormat(metrics.avgBudget);
+
+
+        document.getElementById("ctr").innerText =
+            percentage(metrics.ctr);
+
+    }
+
+
+    /* =========================================
+       GROUP DATA
+    ========================================= */
+
+    function groupData(rows, field) {
+
+        const result = {};
+
+
+        rows.forEach(row => {
+
+            const key =
+                row[field] || "Unknown";
+
+
+            if (!result[key])
+                result[key] = 0;
+
+
+            if (
+                row.event_type === "Click" ||
+                row.event_type === "Like" ||
+                row.event_type === "Comment" ||
+                row.event_type === "Share"
+            ) {
+
+                result[key]++;
+
+            }
+
+        });
+
+
+        return result;
+
+    }
+
+
+    /* =========================================
+       DESTROY CHART
+    ========================================= */
+
+    function destroyChart(name) {
+
+        if (charts[name]) {
+
+            charts[name].destroy();
+
+        }
+
+    }
+
+
+    /* =========================================
+       AGE CHART
+    ========================================= */
+
+    function createAgeChart(rows) {
+
+        destroyChart("age");
+
+
+        const data =
+            groupData(rows, "user_age");
+
+
+        const labels =
+            Object.keys(data)
+                .sort((a,b) =>
+                    Number(a) - Number(b)
+                );
+
+
+        charts.age =
+            new Chart(
+                document.getElementById("ageChart"),
+                {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels,
+
+                        datasets: [{
+
+                            label: "Engagements",
+
+                            data:
+                                labels.map(
+                                    x => data[x]
+                                )
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false
+
+                    }
+
+                }
+
+            );
+
+    }
+
+
+    /* =========================================
+       GENDER CHART
+    ========================================= */
+
+    function createGenderChart(rows) {
+
+        destroyChart("gender");
+
+
+        const data =
+            groupData(
+                rows,
+                "target_gender"
+            );
+
+
+        charts.gender =
+            new Chart(
+                document.getElementById("genderChart"),
+                {
+
+                    type: "doughnut",
+
+                    data: {
+
+                        labels:
+                            Object.keys(data),
+
+                        datasets: [{
+
+                            data:
+                                Object.values(data)
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false
+
+                    }
+
+                }
+
+            );
+
+    }
+
+
+    /* =========================================
+       COUNTRY CHART
+    ========================================= */
+
+    function createCountryChart(rows) {
+
+        destroyChart("country");
+
+
+        const data =
+            groupData(
+                rows,
+                "country"
+            );
+
+
+        const sorted =
+            Object.entries(data)
+                .sort((a,b) => b[1] - a[1])
+                .slice(0,10);
+
+
+        charts.country =
+            new Chart(
+                document.getElementById("countryChart"),
+                {
+
+                    type: "bar",
+
+                    data: {
+
+                        labels:
+                            sorted.map(x => x[0]),
+
+                        datasets: [{
+
+                            label: "Engagements",
+
+                            data:
+                                sorted.map(x => x[1])
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        indexAxis: "y",
+
+                        responsive: true,
+
+                        maintainAspectRatio: false
+
+                    }
+
+                }
+
+            );
+
+    }
+
+
+    /* =========================================
+       WEEKLY CHART
+    ========================================= */
+
+    function createWeeklyChart(rows) {
+
+        destroyChart("weekly");
+
+
+        const weeks = {};
+
+
+        rows.forEach(row => {
+
+            if (!row.timestamp)
+                return;
+
+
+            const date =
+                new Date(row.timestamp);
+
+
+            const week =
+                Math.ceil(
+                    (
+                        (
+                            date -
+                            new Date(
+                                date.getFullYear(),
+                                0,
+                                1
+                            )
+                        ) / 86400000
+                    ) / 7
+                );
+
+
+            const key =
+                "Week " + week;
+
+
+            if (!weeks[key])
+                weeks[key] = 0;
+
+
+            if (
+                row.event_type === "Click" ||
+                row.event_type === "Like" ||
+                row.event_type === "Comment" ||
+                row.event_type === "Share"
+            ) {
+
+                weeks[key]++;
+
+            }
+
+        });
+
+
+        const labels =
+            Object.keys(weeks);
+
+
+        charts.weekly =
+            new Chart(
+                document.getElementById("weeklyChart"),
+                {
+
+                    type: "line",
+
+                    data: {
+
+                        labels,
+
+                        datasets: [{
+
+                            label: "Engagements",
+
+                            data:
+                                labels.map(
+                                    x => weeks[x]
+                                ),
+
+                            tension: 0.3
+
+                        }]
+
+                    },
+
+                    options: {
+
+                        responsive: true,
+
+                        maintainAspectRatio: false
+
+                    }
+
+                }
+
+            );
+
+    }
+
+
+    /* =========================================
+       PERFORMANCE TABLE
+    ========================================= */
+
+    function createTable(rows) {
+
+        const groups = {};
+
+
+        rows.forEach(row => {
+
+            const type =
+                row.ad_type || "Unknown";
+
+
+            if (!groups[type]) {
+
+                groups[type] = {
+
+                    Impression: 0,
+                    Click: 0,
+                    Purchase: 0,
+                    Like: 0,
+                    Comment: 0,
+                    Share: 0
+
+                };
+
+            }
+
+
+            if (
+                groups[type][row.event_type]
+                !== undefined
+            ) {
+
+                groups[type][row.event_type]++;
+
+            }
+
+        });
+
+
+        const table =
+            document.getElementById(
+                "performanceTable"
+            );
+
+
+        table.innerHTML = "";
+
+
+        Object.entries(groups)
+            .forEach(([type, data]) => {
+
+
+                const impressions =
+                    data.Impression;
+
+
+                const clicks =
+                    data.Click;
+
+
+                const purchases =
+                    data.Purchase;
+
+
+                const engagements =
+                    data.Click +
+                    data.Like +
+                    data.Comment +
+                    data.Share;
+
+
+                const ctr =
+                    impressions
+                        ? clicks / impressions
+                        : 0;
+
+
+                const purchaseRate =
+                    impressions
+                        ? purchases / impressions
+                        : 0;
+
+
+                const engagementRate =
+                    impressions
+                        ? engagements / impressions
+                        : 0;
+
+
+                const conversionRate =
+                    clicks
+                        ? purchases / clicks
+                        : 0;
+
+
+                table.innerHTML += `
+
+                    <tr>
+
+                        <td>${type}</td>
+
+                        <td>
+                            ${numberFormat(impressions)}
+                        </td>
+
+                        <td>
+                            ${numberFormat(clicks)}
+                        </td>
+
+                        <td>
+                            ${percentage(ctr)}
+                        </td>
+
+                        <td>
+                            ${percentage(purchaseRate)}
+                        </td>
+
+                        <td>
+                            ${percentage(engagementRate)}
+                        </td>
+
+                        <td>
+                            ${percentage(conversionRate)}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            });
+
+    }
+
+
+    /* =========================================
+       UPDATE DASHBOARD
+    ========================================= */
+
+    function updateDashboard() {
+
+        const rows =
+            getFilteredData();
+
+
+        const metrics =
+            calculateMetrics(rows);
+
+
+        updateKPIs(metrics);
+
+
+        createAgeChart(rows);
+
+        createGenderChart(rows);
+
+        createWeeklyChart(rows);
+
+        createCountryChart(rows);
+
+        createTable(rows);
+
+
+        document.getElementById("status").innerText =
+            numberFormat(rows.length) +
+            " event records • " +
+            selectedPlatform;
+
+    }
+
+
+    /* =========================================
+       PLATFORM BUTTONS
+    ========================================= */
+
+    document
+        .querySelectorAll(".platform")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                function() {
+
+                    document
+                        .querySelectorAll(".platform")
+                        .forEach(btn =>
+                            btn.classList.remove("active")
+                        );
+
+
+                    this.classList.add("active");
+
+
+                    selectedPlatform =
+                        this.dataset.platform;
+
+
+                    populateFilters();
+
+
+                    updateDashboard();
+
+                }
+            );
+
+        });
+
+
+    /* =========================================
+       FILTER EVENTS
+    ========================================= */
+
+    document
+        .getElementById("campaignFilter")
+        .addEventListener(
+            "change",
+            updateDashboard
+        );
+
+
+    document
+        .getElementById("interestFilter")
+        .addEventListener(
+            "change",
+            updateDashboard
+        );
+
+
+    document
+        .getElementById("monthFilter")
+        .addEventListener(
+            "change",
+            updateDashboard
+        );
+
+
+    document
+        .getElementById("measureFilter")
+        .addEventListener(
+            "change",
+            updateDashboard
+        );
+
+
+    /* =========================================
+       START
+    ========================================= */
+
+    loadData();
+
+</script>
+
+</body>
+</html>
